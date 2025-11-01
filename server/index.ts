@@ -47,6 +47,7 @@ export function createServer() {
   app.post("/api/export-streaming", handleExportStreaming);
   app.post("/api/delete-streaming-files", handleDeleteStreaming);
   app.post("/api/generate-strm", handleGenerateStrm);
+  app.post("/api/generate-movie", handleGenerateMovie);
 
   return app;
 }
