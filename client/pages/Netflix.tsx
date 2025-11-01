@@ -12,8 +12,25 @@ import {
   Calendar,
   Users,
   Tag,
+  Play,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+
+interface Season {
+  id: string;
+  number: string;
+  episodeCount: number;
+}
+
+interface Episode {
+  id: string;
+  title: string;
+  season: string;
+  episode: string;
+  description: string;
+  completed: string;
+  duration: string;
+}
 
 interface NetflixData {
   title: string;
@@ -29,7 +46,7 @@ interface NetflixData {
   quality: string;
   creator?: string;
   director?: string;
-  seasons?: number;
+  seasons?: Season[];
   contentWarning?: string;
 }
 
