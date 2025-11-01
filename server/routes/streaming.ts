@@ -51,9 +51,11 @@ const generateStrmContent = (
     token = token.replace(/::[a-zA-Z]+$/i, "::ni");
   }
 
-  // Determine correct path segment for service (amazon-prime uses /pv/)
+  // Determine correct path segment for service
   const baseDomain = "net51.cc";
-  const pathSegment = service === "amazon-prime" ? "pv/hls" : "hls";
+  let pathSegment = "hls";
+  if (service === "amazon-prime") pathSegment = "pv/hls";
+  if (service === "jio-hotstar") pathSegment = "mobile/hs/hls";
 
   return `https://iosmirror.vflix.life/api/stream-proxy?url=https://${baseDomain}/${pathSegment}/${episodeId}.m3u8?${token}&referer=https%3A%2F%2Fnet51.cc`;
 };
