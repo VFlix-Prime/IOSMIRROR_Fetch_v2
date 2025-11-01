@@ -40,6 +40,36 @@ const generateStrmContent = (episode: any): string => {
   return `https://iosmirror.vflix.life/api/stream-proxy?url=https://net51.cc/hls/${episodeId}.m3u8?in=1df163a49286a7c854f2b07e8a995bfa::913b431120b4fd2ec3d4bfd587867697::1761993038::ni&referer=https%3A%2F%2Fnet51.cc`;
 };
 
+// Ensure directory exists (create if not)
+const ensureDirectoryExists = (dir: string): void => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+// Write .strm files to disk
+const writeStrmFiles = (
+  folderPath: string,
+  episodes: any[],
+): Array<{ fileName: string; filePath: string; streamUrl: string }> => {
+  ensureDirectoryExists(folderPath);
+
+  return episodes.map((episode, index) => {
+    const episodeNumber = episode.episode.split("E")[1] || `${index + 1}`;
+    const fileName = `E${episodeNumber}.strm`;
+    const filePath = path.join(folderPath, fileName);
+    const content = generateStrmContent(episode);
+
+    fs.writeFileSync(filePath, content, "utf-8");
+
+    return {
+      fileName,
+      filePath,
+      streamUrl: content,
+    };
+  });
+};
+
 export const handleSaveStreaming: RequestHandler = async (req, res) => {
   try {
     const { service, seriesName, seriesId, season, episodes } = req.body;
