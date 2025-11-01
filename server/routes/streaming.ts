@@ -181,3 +181,70 @@ export const handleDeleteStreaming: RequestHandler = async (req, res) => {
     res.status(500).json({ error: "Failed to delete streaming details" });
   }
 };
+
+// Generate and save .strm files
+export const handleGenerateStrm: RequestHandler = async (req, res) => {
+  try {
+    const { service, seriesName, seriesId, seasons } = req.body;
+
+    if (!service || !seriesName || !seriesId || !seasons) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const allFiles: any[] = [];
+    const seasonDetails: any[] = [];
+
+    // Process each season
+    for (const season of seasons) {
+      if (!season.episodes || season.episodes.length === 0) {
+        continue;
+      }
+
+      const folderPath = generateFolderPath(
+        service,
+        seriesName,
+        season.number,
+      );
+
+      try {
+        const createdFiles = writeStrmFiles(folderPath, season.episodes);
+
+        allFiles.push(...createdFiles);
+
+        seasonDetails.push({
+          seasonNumber: season.number,
+          totalEpisodes: season.episodes.length,
+          folderPath,
+          files: createdFiles,
+        });
+
+        console.log(
+          `Created ${createdFiles.length} .strm files for ${seriesName} Season ${season.number} at ${folderPath}`,
+        );
+      } catch (error) {
+        console.error(
+          `Error writing files for season ${season.number}:`,
+          error,
+        );
+        return res.status(500).json({
+          error: `Failed to write files for season ${season.number}`,
+        });
+      }
+    }
+
+    const response = {
+      success: true,
+      seriesName,
+      seriesId,
+      totalSeasonsProcessed: seasonDetails.length,
+      totalFilesCreated: allFiles.length,
+      seasons: seasonDetails,
+      generatedAt: new Date().toISOString(),
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("Generate .strm error:", error);
+    res.status(500).json({ error: "Failed to generate .strm files" });
+  }
+};
