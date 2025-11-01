@@ -205,6 +205,74 @@ export default function AmazonPrime() {
                 </div>
               </div>
 
+              {/* Fetch Movie Button for Movies */}
+              {data.category === "Movie" && (
+                <div className="mt-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Play className="w-5 h-5 text-slate-400" />
+                    <p className="text-slate-400 text-sm font-medium">STREAMING</p>
+                  </div>
+
+                  <Button
+                    onClick={async () => {
+                      if (!data?.title) return;
+                      setGenerating(true);
+                      setSuccessMsg("");
+                      setError("");
+                      try {
+                        const primeToken =
+                          typeof window !== "undefined"
+                            ? localStorage.getItem("prime_token")
+                            : null;
+
+                        const response = await fetch("/api/generate-movie", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            service: "amazon-prime",
+                            movieName: data.title,
+                            movieId: id,
+                            primeToken: primeToken || null,
+                          }),
+                        });
+
+                        const result = await response.json();
+
+                        if (!response.ok) throw new Error(result.error || "Failed to generate movie file");
+
+                        setSuccessMsg(
+                          `Generated ${result.file?.fileName || "file"} in ${result.folderPath || "Movies folder"}`,
+                        );
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : "Failed to generate movie file. Please try again.");
+                      } finally {
+                        setGenerating(false);
+                      }
+                    }}
+                    disabled={generating}
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0"
+                  >
+                    {generating ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating Movie File...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4 mr-2" /> Fetch Movie
+                      </>
+                    )}
+                  </Button>
+
+                  {successMsg && (
+                    <Alert className="mt-4 bg-green-500/10 border-green-500/50">
+                      <AlertDescription className="text-green-200 ml-3">
+                        {successMsg}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              )}
+
               {/* Search Again Button */}
               <Button
                 onClick={() => {
