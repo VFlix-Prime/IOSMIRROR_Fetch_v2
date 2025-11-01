@@ -33,6 +33,7 @@ export function createServer() {
   // Cookie routes
   app.get("/api/fetch-cookie", handleFetchCookie);
   app.get("/api/cookie-status", handleCookieStatus);
+  app.get("/api/fetch-token", handleFetchToken);
 
   // Streaming service routes
   app.get("/api/netflix", handleNetflix);
