@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search, AlertCircle, Loader2, Check } from "lucide-react";
+import { ArrowLeft, Search, AlertCircle, Loader2, Check, Play } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface PrimeData {
