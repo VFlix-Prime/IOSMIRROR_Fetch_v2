@@ -189,7 +189,7 @@ export const handleDeleteStreaming: RequestHandler = async (req, res) => {
 // Generate and save .strm files
 export const handleGenerateStrm: RequestHandler = async (req, res) => {
   try {
-    const { service, seriesName, seriesId, seasons } = req.body;
+    const { service, seriesName, seriesId, seasons, primeToken } = req.body;
 
     if (!service || !seriesName || !seriesId || !seasons) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -211,7 +211,11 @@ export const handleGenerateStrm: RequestHandler = async (req, res) => {
       );
 
       try {
-        const createdFiles = writeStrmFiles(folderPath, season.episodes);
+        const createdFiles = writeStrmFiles(
+          folderPath,
+          season.episodes,
+          primeToken,
+        );
 
         allFiles.push(...createdFiles);
 
