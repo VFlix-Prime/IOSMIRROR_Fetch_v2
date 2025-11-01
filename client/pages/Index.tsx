@@ -94,6 +94,9 @@ export default function Index() {
           </p>
         </div>
       </div>
+
+      {/* Cookie Status Indicator */}
+      <CookieStatus />
     </div>
   );
 }
