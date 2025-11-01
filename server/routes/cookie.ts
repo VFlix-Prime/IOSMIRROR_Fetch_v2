@@ -23,28 +23,31 @@ export const getTHash = async (): Promise<string | null> => {
       },
     });
 
-    // Get the Set-Cookie header
-    const setCookieHeader = response.headers.get("set-cookie");
+    // Get all Set-Cookie headers
+    const setCookieHeaders = response.headers.getSetCookie?.() || [];
     console.log(
-      "Set-Cookie header:",
-      setCookieHeader ? setCookieHeader.substring(0, 100) : "not found",
+      "Set-Cookie headers count:",
+      setCookieHeaders.length,
+      setCookieHeaders.map((h) => h.substring(0, 100)),
     );
 
-    if (!setCookieHeader) {
-      console.error("No Set-Cookie header found");
+    if (setCookieHeaders.length === 0) {
+      console.error("No Set-Cookie headers found");
       return null;
     }
 
-    // Extract t_hash using regex pattern
-    const hashMatch = setCookieHeader.match(/t_hash=([^;]+)/);
-    if (hashMatch && hashMatch[1]) {
-      cachedTHash = hashMatch[1];
-      cacheTimestamp = Date.now();
-      console.log("Successfully extracted t_hash:", cachedTHash);
-      return cachedTHash;
+    // Find the Set-Cookie header that contains t_hash
+    for (const cookieHeader of setCookieHeaders) {
+      const hashMatch = cookieHeader.match(/t_hash=([^;]+)/);
+      if (hashMatch && hashMatch[1]) {
+        cachedTHash = hashMatch[1];
+        cacheTimestamp = Date.now();
+        console.log("Successfully extracted t_hash:", cachedTHash);
+        return cachedTHash;
+      }
     }
 
-    console.error("Could not extract t_hash from cookie");
+    console.error("Could not find t_hash in any Set-Cookie headers");
     return null;
   } catch (error) {
     console.error("Error fetching t_hash:", error);
