@@ -39,11 +39,10 @@ export const getTHash = async (): Promise<string | null> => {
     // Find the Set-Cookie header that contains t_hash
     for (const cookieHeader of setCookieHeaders) {
       console.log("Processing Set-Cookie header:", cookieHeader.substring(0, 150));
-      const hashMatch = cookieHeader.match(/t_hash=([^;]*)/);
-      if (hashMatch && hashMatch[1]) {
-        cachedTHash = hashMatch[1];
+      if (cookieHeader.includes("t_hash=")) {
+        cachedTHash = cookieHeader;
         cacheTimestamp = Date.now();
-        console.log("Successfully extracted t_hash. Length:", cachedTHash.length, "Value:", cachedTHash);
+        console.log("Successfully extracted full Set-Cookie header. Length:", cachedTHash.length);
         return cachedTHash;
       }
     }
