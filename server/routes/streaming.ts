@@ -205,7 +205,14 @@ export const handleGenerateMovie: RequestHandler = async (req, res) => {
     try {
       ensureDirectoryExists(moviesFolder);
 
-      const fileName = `${movieId}.strm`;
+      const sanitizeFileName = (name: string) =>
+        name
+          .trim()
+          .replace(/[\\/:*?"<>|]/g, "")
+          .replace(/\s+/g, " ");
+
+      const safeMovieName = sanitizeFileName(movieName);
+      const fileName = `${safeMovieName}.strm`;
       const filePath = path.join(moviesFolder, fileName);
       const streamUrl = generateStrmContent({ id: movieId }, primeToken);
 
