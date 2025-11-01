@@ -61,9 +61,16 @@ export const handleNetflix: RequestHandler = async (req, res) => {
       return res.status(response.status).json({ error: "Failed to fetch data from Netflix API" });
     }
 
-    const jsonData: NetflixAPIResponse = await response.json();
+    let jsonData: any;
+    try {
+      jsonData = await response.json();
+    } catch (parseError) {
+      console.error("Failed to parse JSON:", parseError);
+      return res.status(500).json({ error: "Invalid response format from API" });
+    }
 
-    if (jsonData.status !== "y") {
+    // Check if we have valid data (status should be "y" or data should have title)
+    if (!jsonData || (!jsonData.title && jsonData.status !== "y")) {
       return res.status(404).json({ error: "Content not found" });
     }
 
