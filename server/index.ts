@@ -5,12 +5,18 @@ import { handleDemo } from "./routes/demo";
 import { handleNetflix } from "./routes/netflix";
 import { handleAmazonPrime } from "./routes/amazon-prime";
 import { handleJioHotstar } from "./routes/jio-hotstar";
-import { handleFetchCookie, handleCookieStatus } from "./routes/cookie";
+import {
+  handleFetchCookie,
+  handleCookieStatus,
+  handleFetchToken,
+} from "./routes/cookie";
 import { handleEpisodes } from "./routes/episodes";
 import {
   handleSaveStreaming,
   handleExportStreaming,
   handleDeleteStreaming,
+  handleGenerateStrm,
+  handleGenerateMovie,
 } from "./routes/streaming";
 
 export function createServer() {
@@ -32,6 +38,7 @@ export function createServer() {
   // Cookie routes
   app.get("/api/fetch-cookie", handleFetchCookie);
   app.get("/api/cookie-status", handleCookieStatus);
+  app.get("/api/fetch-token", handleFetchToken);
 
   // Streaming service routes
   app.get("/api/netflix", handleNetflix);
@@ -43,6 +50,8 @@ export function createServer() {
   app.post("/api/save-streaming", handleSaveStreaming);
   app.post("/api/export-streaming", handleExportStreaming);
   app.post("/api/delete-streaming-files", handleDeleteStreaming);
+  app.post("/api/generate-strm", handleGenerateStrm);
+  app.post("/api/generate-movie", handleGenerateMovie);
 
   return app;
 }

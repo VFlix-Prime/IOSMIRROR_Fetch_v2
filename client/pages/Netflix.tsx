@@ -13,6 +13,7 @@ import {
   Users,
   Tag,
   Play,
+  Film,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -50,6 +51,25 @@ interface NetflixData {
   contentWarning?: string;
 }
 
+interface StrmGenerationResult {
+  success: boolean;
+  seriesName: string;
+  seriesId: string;
+  totalSeasonsProcessed: number;
+  totalFilesCreated: number;
+  seasons: Array<{
+    seasonNumber: string;
+    totalEpisodes: number;
+    folderPath: string;
+    files: Array<{
+      fileName: string;
+      filePath: string;
+      streamUrl: string;
+    }>;
+  }>;
+  generatedAt: string;
+}
+
 export default function Netflix() {
   const [id, setId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -58,6 +78,8 @@ export default function Netflix() {
   const [selectedSeason, setSelectedSeason] = useState<Season | null>(null);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [episodesLoading, setEpisodesLoading] = useState(false);
+  const [history, setHistory] = useState<StrmGenerationResult[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,7 +131,19 @@ export default function Netflix() {
         throw new Error(result.error || "Failed to fetch episodes");
       }
 
-      setEpisodes(result.episodes || []);
+      const fetchedEpisodes = result.episodes || [];
+      setEpisodes(fetchedEpisodes);
+
+      // Generate .strm files for single season
+      if (fetchedEpisodes.length > 0) {
+        await generateStrmFiles([
+          {
+            number: season.number,
+            id: season.id,
+            episodes: fetchedEpisodes,
+          },
+        ]);
+      }
     } catch (err) {
       setError(
         err instanceof Error
@@ -131,6 +165,7 @@ export default function Netflix() {
 
     try {
       const allEpisodes: Episode[] = [];
+      const seasonData: any[] = [];
 
       for (const season of data.seasons) {
         const response = await fetch(
@@ -141,10 +176,20 @@ export default function Netflix() {
 
         if (response.ok && result.episodes) {
           allEpisodes.push(...result.episodes);
+          seasonData.push({
+            number: season.number,
+            id: season.id,
+            episodes: result.episodes,
+          });
         }
       }
 
       setEpisodes(allEpisodes);
+
+      // Generate .strm files
+      if (seasonData.length > 0) {
+        await generateStrmFiles(seasonData);
+      }
     } catch (err) {
       setError(
         err instanceof Error
@@ -152,6 +197,89 @@ export default function Netflix() {
           : "Failed to fetch episodes. Please try again.",
       );
       setEpisodes([]);
+    } finally {
+      setEpisodesLoading(false);
+    }
+  };
+
+  const generateStrmFiles = async (seasonData: any[]) => {
+    try {
+      // Get prime token from localStorage
+      const primeToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("prime_token")
+          : null;
+
+      const response = await fetch("/api/generate-strm", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          service: "netflix",
+          seriesName: data?.title || "Unknown",
+          seriesId: id,
+          seasons: seasonData,
+          primeToken: primeToken || null,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to generate .strm files");
+      }
+
+      setHistory([result, ...history]);
+      setShowHistory(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to generate .strm files. Please try again.",
+      );
+    }
+  };
+
+  const handleFetchMovie = async () => {
+    if (!data?.title) return;
+
+    setEpisodesLoading(true);
+
+    try {
+      // Get prime token from localStorage
+      const primeToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("prime_token")
+          : null;
+
+      const response = await fetch("/api/generate-movie", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          service: "netflix",
+          movieName: data.title,
+          movieId: id,
+          primeToken: primeToken || null,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to generate movie file");
+      }
+
+      setHistory([result, ...history]);
+      setShowHistory(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to generate movie file. Please try again.",
+      );
     } finally {
       setEpisodesLoading(false);
     }
@@ -410,6 +538,36 @@ export default function Netflix() {
                     </div>
                   )}
 
+                  {/* Fetch Movie Button for Movies */}
+                  {data.category === "Movie" && (
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Film className="w-5 h-5 text-slate-400" />
+                        <p className="text-slate-400 text-sm font-medium">
+                          STREAMING
+                        </p>
+                      </div>
+
+                      <Button
+                        onClick={handleFetchMovie}
+                        disabled={episodesLoading}
+                        className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:opacity-90 text-white border-0"
+                      >
+                        {episodesLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Generating Movie File...
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-4 h-4 mr-2" />
+                            Fetch Movie
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+
                   {/* Seasons for Series */}
                   {data.category === "Series" &&
                     data.seasons &&
@@ -549,6 +707,141 @@ export default function Netflix() {
             >
               Search Again
             </Button>
+          )}
+
+          {/* History Toggle Button */}
+          {history.length > 0 && (
+            <Button
+              onClick={() => setShowHistory(!showHistory)}
+              variant="outline"
+              className="w-full border-slate-600 text-white hover:bg-slate-800 mt-6"
+            >
+              {showHistory ? "Hide" : "Show"} Generation History (
+              {history.length})
+            </Button>
+          )}
+
+          {/* History Section */}
+          {showHistory && history.length > 0 && (
+            <div className="mt-8 space-y-4 animate-in fade-in duration-300">
+              {history.map((result, historyIdx) => {
+                const isMovie = result.movieName && result.file;
+                const isSeries =
+                  result.seriesName && result.seasons && result.seasons.length;
+
+                return (
+                  <div
+                    key={historyIdx}
+                    className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-amber-500/30 shadow-lg shadow-amber-500/20"
+                  >
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="bg-amber-500/20 rounded-full p-3">
+                        {isMovie ? (
+                          <Film className="w-6 h-6 text-amber-400" />
+                        ) : (
+                          <Tv className="w-6 h-6 text-amber-400" />
+                        )}
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-white">
+                          {result.movieName || result.seriesName}
+                        </h2>
+                        <p className="text-slate-400 text-sm">
+                          {isMovie ? "Movie" : "Series"} •{" "}
+                          {new Date(result.generatedAt).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Movie Display */}
+                    {isMovie && (
+                      <div className="space-y-4">
+                        <div className="bg-slate-700/50 rounded-lg p-4 border border-slate-600">
+                          <p className="text-slate-400 text-xs mb-3">
+                            {result.folderPath}
+                          </p>
+
+                          <div className="bg-slate-800/50 rounded p-3 text-center">
+                            <p className="text-sm font-bold text-white mb-1">
+                              {result.file.fileName}
+                            </p>
+                            <p className="text-xs text-green-400">
+                              ✓ Generated
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Series Display */}
+                    {isSeries && (
+                      <>
+                        <div className="bg-slate-700/30 rounded-lg p-4 mb-6">
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-slate-400 text-xs font-medium mb-1">
+                                TOTAL FILES
+                              </p>
+                              <p className="text-2xl font-bold text-green-400">
+                                {result.totalFilesCreated}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-xs font-medium mb-1">
+                                SEASONS PROCESSED
+                              </p>
+                              <p className="text-2xl font-bold text-blue-400">
+                                {result.totalSeasonsProcessed}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          {result.seasons.map((season, idx) => (
+                            <div
+                              key={idx}
+                              className="bg-slate-700/50 rounded-lg p-4 border border-slate-600"
+                            >
+                              <div className="flex items-center gap-3 mb-3">
+                                <Tv className="w-4 h-4 text-slate-400" />
+                                <h3 className="text-white font-semibold flex-grow">
+                                  Season {season.seasonNumber}
+                                </h3>
+                                <span className="bg-purple-500/30 text-purple-300 px-3 py-1 rounded-full text-sm font-bold">
+                                  {season.totalEpisodes} Episodes
+                                </span>
+                              </div>
+
+                              <p className="text-slate-400 text-xs mb-3">
+                                {season.folderPath}
+                              </p>
+
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                {season.files.map((file, fileIdx) => (
+                                  <div
+                                    key={fileIdx}
+                                    className="bg-slate-800/50 rounded p-2 text-center hover:bg-slate-800 transition-colors cursor-pointer"
+                                    title={file.streamUrl}
+                                  >
+                                    <p className="text-xs font-bold text-white">
+                                      {file.fileName}
+                                    </p>
+                                    <p className="text-xs text-slate-500 truncate">
+                                      ✓ Generated
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           )}
 
           {/* Info Message */}

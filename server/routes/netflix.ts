@@ -77,6 +77,14 @@ export const handleNetflix: RequestHandler = async (req, res) => {
       status: jsonData?.status,
       hasTitle: !!jsonData?.title,
       hasYear: !!jsonData?.year,
+      hasSeason: !!jsonData?.season,
+      seasonCount: Array.isArray(jsonData?.season) ? jsonData.season.length : 0,
+      firstSeasonKeys: Array.isArray(jsonData?.season)
+        ? Object.keys(jsonData.season[0] || {})
+        : [],
+      firstSeasonData: Array.isArray(jsonData?.season)
+        ? JSON.stringify(jsonData.season[0]).substring(0, 200)
+        : null,
     });
 
     // Check if the API returned success status
@@ -105,28 +113,89 @@ export const handleNetflix: RequestHandler = async (req, res) => {
     // Process seasons with IDs and episode counts
     let seasons: Season[] | undefined;
     if (isSeriesData && Array.isArray(jsonData.season)) {
-      seasons = jsonData.season.map((season: any, index: number) => {
-        // Try multiple possible field names for episode count
-        let episodeCount = 0;
+      seasons = await Promise.all(
+        jsonData.season.map(async (season: any, index: number) => {
+          // Try multiple possible field names for episode count
+          let episodeCount = 0;
+          const countValue =
+            season.ep_count ||
+            season.total_episodes ||
+            season.episode_count ||
+            season.eps ||
+            season.epCount ||
+            season.episodes_count ||
+            season.episode_count_total ||
+            season.totalEpisodes ||
+            season.count;
 
-        if (season.ep_count) {
-          episodeCount = parseInt(season.ep_count);
-        } else if (season.total_episodes) {
-          episodeCount = parseInt(season.total_episodes);
-        } else if (season.episode_count) {
-          episodeCount = parseInt(season.episode_count);
-        } else if (season.eps) {
-          episodeCount = parseInt(season.eps);
-        } else if (season.episodes && Array.isArray(season.episodes)) {
-          episodeCount = season.episodes.length;
-        }
+          if (countValue) {
+            const parsed = parseInt(String(countValue), 10);
+            if (!isNaN(parsed) && parsed > 0) {
+              episodeCount = parsed;
+            }
+          }
 
-        return {
-          id: season.id || season.sid || `${index + 1}`,
-          number: season.num || season.number || `${index + 1}`,
-          episodeCount: episodeCount,
-        };
-      });
+          // If still no count and episodes array exists, use array length
+          if (
+            episodeCount === 0 &&
+            season.episodes &&
+            Array.isArray(season.episodes)
+          ) {
+            episodeCount = season.episodes.length;
+          }
+
+          // If still no count, try fetching episodes from the API
+          if (episodeCount === 0) {
+            try {
+              const seasonId = season.id || season.sid || `${index + 1}`;
+              const episodeUrl = `https://net51.cc/episodes.php?s=${encodeURIComponent(seasonId)}&series=${encodeURIComponent(id)}`;
+              const episodeResponse = await fetch(episodeUrl, {
+                method: "GET",
+                headers: {
+                  "User-Agent":
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                  Accept: "application/json",
+                  "Accept-Language": "en-US,en;q=0.9",
+                  Referer: "https://net51.cc/",
+                  ...(cookieHeader && { Cookie: cookieHeader }),
+                },
+              });
+              const episodeText = await episodeResponse.text();
+              if (episodeText) {
+                try {
+                  const episodeData = JSON.parse(episodeText);
+                  if (
+                    episodeData.episodes &&
+                    Array.isArray(episodeData.episodes)
+                  ) {
+                    episodeCount = episodeData.episodes.length;
+                  }
+                } catch (e) {
+                  // Episode parsing failed, keep episodeCount as is
+                }
+              }
+            } catch (e) {
+              // Episode fetch failed, keep episodeCount as is
+            }
+          }
+
+          console.log(
+            `Season ${season.number || index + 1}: episodeCount=${episodeCount}`,
+          );
+          if (index === 0) {
+            console.log(
+              `  Available fields in season object:`,
+              Object.keys(season).join(", "),
+            );
+          }
+
+          return {
+            id: season.id || season.sid || `${index + 1}`,
+            number: season.num || season.number || `${index + 1}`,
+            episodeCount: episodeCount,
+          };
+        }),
+      );
     }
 
     const result: NetflixResponse = {

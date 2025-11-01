@@ -12,12 +12,22 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCookie } from "@/hooks/useCookie";
+import { useToken } from "@/hooks/useToken";
 import { useState } from "react";
 
 export default function Index() {
   const { tHash, loading, error, fetchCookie, hasCookie, clearCookie } =
     useCookie();
+  const {
+    primeToken,
+    loading: tokenLoading,
+    error: tokenError,
+    fetchToken,
+    hasToken,
+    clearToken,
+  } = useToken();
   const [copied, setCopied] = useState(false);
+  const [tokenCopied, setTokenCopied] = useState(false);
   const handleCopyCookie = async () => {
     if (tHash) {
       let copied = false;
@@ -54,6 +64,46 @@ export default function Index() {
       if (copied) {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+      }
+    }
+  };
+
+  const handleCopyToken = async () => {
+    if (primeToken) {
+      let copied = false;
+
+      // Try Clipboard API first
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(primeToken);
+          copied = true;
+        }
+      } catch (err) {
+        console.log("Clipboard API blocked, using fallback:", err);
+      }
+
+      // Fallback to execCommand if Clipboard API failed
+      if (!copied) {
+        try {
+          const textArea = document.createElement("textarea");
+          textArea.value = primeToken;
+          textArea.style.position = "fixed";
+          textArea.style.left = "-999999px";
+          textArea.style.top = "-999999px";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          const success = document.execCommand("copy");
+          document.body.removeChild(textArea);
+          copied = success;
+        } catch (err) {
+          console.error("Fallback copy failed:", err);
+        }
+      }
+
+      if (copied) {
+        setTokenCopied(true);
+        setTimeout(() => setTokenCopied(false), 2000);
       }
     }
   };
@@ -109,12 +159,12 @@ export default function Index() {
             platforms
           </p>
 
-          {/* Fetch Cookie Button */}
-          <div className="max-w-md mx-auto mb-12">
-            {error && (
+          {/* Fetch Cookie and Token Buttons */}
+          <div className="max-w-2xl mx-auto mb-12 space-y-4">
+            {(error || tokenError) && (
               <div className="mb-4 bg-red-500/10 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                {error}
+                {error || tokenError}
               </div>
             )}
             <Button
@@ -143,6 +193,35 @@ export default function Index() {
                 </>
               )}
             </Button>
+
+            {hasCookie && (
+              <Button
+                onClick={fetchToken}
+                disabled={tokenLoading}
+                className={`w-full py-6 text-lg font-semibold flex items-center justify-center gap-3 transition-all ${
+                  hasToken
+                    ? "bg-gradient-to-r from-amber-600 to-amber-700 hover:opacity-90 border-0"
+                    : "bg-gradient-to-r from-orange-600 to-orange-700 hover:opacity-90 border-0"
+                } text-white`}
+              >
+                {tokenLoading ? (
+                  <>
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                    Fetching Token...
+                  </>
+                ) : hasToken ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5" />
+                    Token Ready ✓
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-5 h-5" />
+                    Fetch Prime Token
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -221,6 +300,47 @@ export default function Index() {
                 <p className="text-slate-400 text-xs">
                   This cookie will be used for all API requests. Click "Fetch
                   Cookies" again to refresh.
+                </p>
+              </div>
+            )}
+
+            {/* Token Status Section */}
+            {hasToken && (
+              <div className="bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/30 rounded-lg p-4 mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <CheckCircle2 className="w-5 h-5 text-amber-400" />
+                  <p className="text-amber-300 font-semibold">
+                    Prime Token Active
+                  </p>
+                </div>
+                <div className="bg-slate-900/50 rounded p-3 mb-3 font-mono text-xs text-slate-300 relative">
+                  <div className="pr-16 whitespace-pre-wrap break-words max-h-40 overflow-y-auto">
+                    {primeToken}
+                  </div>
+                  <div className="absolute top-3 right-3 flex gap-2">
+                    <button
+                      onClick={handleCopyToken}
+                      className="p-1 hover:bg-slate-800 rounded transition-colors"
+                      title="Copy to clipboard"
+                    >
+                      {tokenCopied ? (
+                        <Check className="w-4 h-4 text-green-400" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-slate-400 hover:text-slate-300" />
+                      )}
+                    </button>
+                    <button
+                      onClick={clearToken}
+                      className="p-1 hover:bg-slate-800 rounded transition-colors"
+                      title="Clear token"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-400 hover:text-red-300" />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-slate-400 text-xs">
+                  This token will be used for streaming API requests. Click
+                  "Fetch Prime Token" again to refresh.
                 </p>
               </div>
             )}
