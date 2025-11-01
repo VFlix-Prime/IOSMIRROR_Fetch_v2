@@ -127,10 +127,13 @@ export const getPrimeToken = async (): Promise<string | null> => {
             /in=([a-f0-9]{32}::[a-f0-9]{32}::\d+::[a-z]+)/,
           );
           if (match) {
-            const primeToken = `in=${match[1]}`;
+            let tokenValue = match[1];
+            // Replace the last "su" with "ni"
+            tokenValue = tokenValue.replace(/::su$/, "::ni");
+            const primeToken = `in=${tokenValue}`;
             cachedPrimeToken = primeToken;
             tokenCacheTimestamp = Date.now();
-            console.log("Successfully fetched prime token");
+            console.log("Successfully fetched prime token:", primeToken);
             return primeToken;
           }
         }
