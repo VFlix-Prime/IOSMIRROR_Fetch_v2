@@ -365,7 +365,7 @@ export default function JioHotstar() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {data.seasons.map((season) => (
                       <Button key={season.id} onClick={() => handleFetchSeason(season)} disabled={episodesLoading} variant={selectedSeason?.id === season.id ? "default" : "outline"} className={`${selectedSeason?.id === season.id ? "bg-red-600 hover:bg-red-700 border-red-600 text-white" : "border-slate-600 text-slate-300 hover:bg-slate-700"}`}>
-                        Season {season.number}
+                        Season {season.number} ({season.episodeCount ?? 0} eps)
                       </Button>
                     ))}
                   </div>
