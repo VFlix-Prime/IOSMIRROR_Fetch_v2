@@ -18,7 +18,16 @@ import { useState } from "react";
 export default function Index() {
   const { tHash, loading, error, fetchCookie, hasCookie, clearCookie } =
     useCookie();
+  const {
+    primeToken,
+    loading: tokenLoading,
+    error: tokenError,
+    fetchToken,
+    hasToken,
+    clearToken,
+  } = useToken();
   const [copied, setCopied] = useState(false);
+  const [tokenCopied, setTokenCopied] = useState(false);
   const handleCopyCookie = async () => {
     if (tHash) {
       let copied = false;
