@@ -240,6 +240,50 @@ export default function Netflix() {
     }
   };
 
+  const handleFetchMovie = async () => {
+    if (!data?.title) return;
+
+    setEpisodesLoading(true);
+
+    try {
+      // Get prime token from localStorage
+      const primeToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("prime_token")
+          : null;
+
+      const response = await fetch("/api/generate-movie", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          service: "netflix",
+          movieName: data.title,
+          movieId: id,
+          primeToken: primeToken || null,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to generate movie file");
+      }
+
+      setHistory([result, ...history]);
+      setShowHistory(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to generate movie file. Please try again.",
+      );
+    } finally {
+      setEpisodesLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Animated background */}
