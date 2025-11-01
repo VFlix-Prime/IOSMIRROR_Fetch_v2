@@ -2,14 +2,25 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search, AlertCircle, Loader2, Check } from "lucide-react";
+import { ArrowLeft, Search, AlertCircle, Loader2, Check, Tv, Calendar, Users, Tag } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface NetflixData {
   title: string;
   year: string;
-  languages: string;
+  language: string;
   category: "Movie" | "Series";
+  genre: string;
+  cast: string;
+  description: string;
+  rating: string;
+  match: string;
+  runtime: string;
+  quality: string;
+  creator?: string;
+  director?: string;
+  seasons?: number;
+  contentWarning?: string;
 }
 
 export default function Netflix() {
