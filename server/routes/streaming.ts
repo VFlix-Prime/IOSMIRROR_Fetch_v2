@@ -41,9 +41,20 @@ const generateStrmContent = (
 ): string => {
   const episodeId = episode.id;
   // Use provided prime token or fall back to hardcoded token
-  const token =
+  let token =
     primeToken ||
     "in=1df163a49286a7c854f2b07e8a995bfa::913b431120b4fd2ec3d4bfd587867697::1761993038::ni";
+
+  // If a primeToken is provided, normalize its final segment to 'ni'
+  if (primeToken) {
+    if (token.includes("::")) {
+      token = token.replace(/(::)[^:]*$/, "::ni");
+    } else {
+      // Fallback: ensure token ends with 'ni'
+      token = token.replace(/[^:]*$/, "ni");
+    }
+  }
+
   return `https://iosmirror.vflix.life/api/stream-proxy?url=https://net51.cc/hls/${episodeId}.m3u8?${token}&referer=https%3A%2F%2Fnet51.cc`;
 };
 
