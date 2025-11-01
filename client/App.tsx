@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import Netflix from "./pages/Netflix";
 import AmazonPrime from "./pages/AmazonPrime";
 import JioHotstar from "./pages/JioHotstar";
+import History from "./pages/History";
 
 const queryClient = new QueryClient();
 
