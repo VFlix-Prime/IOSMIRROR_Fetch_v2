@@ -18,6 +18,7 @@ import {
   handleGenerateStrm,
   handleGenerateMovie,
 } from "./routes/streaming";
+import { handleGetSettings, handleUpdateSettings } from "./routes/settings";
 
 export function createServer() {
   const app = express();
@@ -52,6 +53,10 @@ export function createServer() {
   app.post("/api/delete-streaming-files", handleDeleteStreaming);
   app.post("/api/generate-strm", handleGenerateStrm);
   app.post("/api/generate-movie", handleGenerateMovie);
+
+  // Settings routes
+  app.get("/api/settings", handleGetSettings);
+  app.post("/api/settings", handleUpdateSettings);
 
   return app;
 }

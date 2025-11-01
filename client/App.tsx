@@ -12,6 +12,7 @@ import Netflix from "./pages/Netflix";
 import AmazonPrime from "./pages/AmazonPrime";
 import JioHotstar from "./pages/JioHotstar";
 import History from "./pages/History";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/amazon-prime" element={<AmazonPrime />} />
           <Route path="/jio-hotstar" element={<JioHotstar />} />
           <Route path="/history" element={<History />} />
+          <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

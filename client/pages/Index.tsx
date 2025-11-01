@@ -147,7 +147,13 @@ export default function Index() {
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
-        <div className="pt-16 px-6 text-center">
+        <div className="pt-16 px-6 text-center relative">
+          <Link
+            to="/settings"
+            className="absolute right-6 top-6 text-slate-300 hover:text-white underline text-sm"
+          >
+            Settings
+          </Link>
           <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tighter">
             IOSMIRROR
           </h1>

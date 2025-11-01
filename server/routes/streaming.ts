@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import * as fs from "fs";
 import * as path from "path";
+import { getSettings } from "../utils/settings";
 
 export interface StreamingDetail {
   id: string;
@@ -28,9 +29,10 @@ const generateFolderPath = (
   seasonNumber: string,
 ): string => {
   const cleanSeriesName = seriesName.trim();
+  const base = getSettings().defaultBaseFolder;
   return path.join(
-    process.cwd(),
-    `OTT/${service}/Series/${cleanSeriesName}/Season ${seasonNumber}`,
+    base,
+    `${service}/Series/${cleanSeriesName}/Season ${seasonNumber}`,
   );
 };
 
@@ -214,7 +216,10 @@ export const handleGenerateMovie: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const moviesFolder = path.join(process.cwd(), `OTT/${service}/Movies`);
+    const moviesFolder = path.join(
+      getSettings().defaultBaseFolder,
+      `${service}/Movies`,
+    );
 
     try {
       ensureDirectoryExists(moviesFolder);
