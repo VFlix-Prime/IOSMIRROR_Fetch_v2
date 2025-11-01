@@ -24,8 +24,9 @@ export const handleAmazonPrime: RequestHandler = async (req, res) => {
   }
 
   try {
-    // Get the full Set-Cookie header
+    // Get the full Set-Cookie header and extract just the cookie value
     const setCookieHeader = await getTHash();
+    const cookieValue = setCookieHeader ? extractCookieValue(setCookieHeader) : null;
 
     const fetchOptions: RequestInit = {
       method: "GET",
@@ -34,7 +35,7 @@ export const handleAmazonPrime: RequestHandler = async (req, res) => {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         Accept: "application/json",
         "Accept-Language": "en-US,en;q=0.9",
-        ...(setCookieHeader && { Cookie: setCookieHeader }),
+        ...(cookieValue && { Cookie: cookieValue }),
       },
     };
 
