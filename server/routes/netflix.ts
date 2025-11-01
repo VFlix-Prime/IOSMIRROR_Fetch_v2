@@ -27,8 +27,11 @@ export const handleNetflix: RequestHandler = async (req, res) => {
   }
 
   try {
-    // Get the t_hash cookie first
-    const tHash = await getTHash();
+    // Get the t_hash cookie first (full Set-Cookie header)
+    const setCookieHeader = await getTHash();
+
+    // Extract just the cookie value (name=value) for the Cookie header
+    const cookieValue = setCookieHeader ? extractCookieValue(setCookieHeader) : null;
 
     const fetchOptions: RequestInit = {
       method: "GET",
@@ -38,12 +41,12 @@ export const handleNetflix: RequestHandler = async (req, res) => {
         Accept: "application/json",
         "Accept-Language": "en-US,en;q=0.9",
         Referer: "https://net20.cc/",
-        ...(tHash && { Cookie: `t_hash=${tHash}` }),
+        ...(cookieValue && { Cookie: cookieValue }),
       },
     };
 
     console.log(
-      `Fetching Netflix data for ID: ${id}, with t_hash: ${tHash ? "yes" : "no"}`,
+      `Fetching Netflix data for ID: ${id}, with t_hash: ${cookieValue ? "yes" : "no"}`,
     );
     const url = `https://net20.cc/post.php?id=${encodeURIComponent(id)}`;
     const response = await fetch(url, fetchOptions);
