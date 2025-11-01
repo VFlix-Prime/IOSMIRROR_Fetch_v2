@@ -1,7 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search, AlertCircle, Loader2, Check, Play, Tv, Film } from "lucide-react";
+import {
+  ArrowLeft,
+  Search,
+  AlertCircle,
+  Loader2,
+  Check,
+  Play,
+  Tv,
+  Film,
+} from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCookie } from "@/hooks/useCookie";
 import { useToken } from "@/hooks/useToken";
@@ -42,8 +51,20 @@ export default function JioHotstar() {
   const [showHistory, setShowHistory] = useState(false);
 
   // Cookie/token hooks (auto-fetch)
-  const { tHash, loading: cookieLoading, error: cookieError, fetchCookie, hasCookie } = useCookie();
-  const { primeToken, loading: tokenLoading, error: tokenError, fetchToken, hasToken } = useToken();
+  const {
+    tHash,
+    loading: cookieLoading,
+    error: cookieError,
+    fetchCookie,
+    hasCookie,
+  } = useCookie();
+  const {
+    primeToken,
+    loading: tokenLoading,
+    error: tokenError,
+    fetchToken,
+    hasToken,
+  } = useToken();
 
   useEffect(() => {
     (async () => {
@@ -70,12 +91,18 @@ export default function JioHotstar() {
     setData(null);
 
     try {
-      const response = await fetch(`/api/jio-hotstar?id=${encodeURIComponent(id)}`);
+      const response = await fetch(
+        `/api/jio-hotstar?id=${encodeURIComponent(id)}`,
+      );
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || "Failed to fetch data");
       setData(json);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch data. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to fetch data. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -109,7 +136,11 @@ export default function JioHotstar() {
         ]);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch episodes. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to fetch episodes. Please try again.",
+      );
       setEpisodes([]);
     } finally {
       setEpisodesLoading(false);
@@ -150,7 +181,11 @@ export default function JioHotstar() {
         await generateStrmFiles(seasonData);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch episodes. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to fetch episodes. Please try again.",
+      );
       setEpisodes([]);
     } finally {
       setEpisodesLoading(false);
@@ -159,7 +194,10 @@ export default function JioHotstar() {
 
   const generateStrmFiles = async (seasonData: any[]) => {
     try {
-      const primeToken = typeof window !== "undefined" ? localStorage.getItem("prime_token") : null;
+      const primeToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("prime_token")
+          : null;
 
       const response = await fetch("/api/generate-strm", {
         method: "POST",
@@ -174,12 +212,17 @@ export default function JioHotstar() {
       });
 
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Failed to generate .strm files");
+      if (!response.ok)
+        throw new Error(result.error || "Failed to generate .strm files");
 
       setHistory([result, ...history]);
       setShowHistory(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate .strm files. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to generate .strm files. Please try again.",
+      );
     }
   };
 
@@ -189,7 +232,10 @@ export default function JioHotstar() {
     setEpisodesLoading(true);
 
     try {
-      const primeToken = typeof window !== "undefined" ? localStorage.getItem("prime_token") : null;
+      const primeToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("prime_token")
+          : null;
 
       const response = await fetch("/api/generate-movie", {
         method: "POST",
@@ -203,11 +249,18 @@ export default function JioHotstar() {
       });
 
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Failed to generate movie file");
+      if (!response.ok)
+        throw new Error(result.error || "Failed to generate movie file");
 
-      setSuccessMsg(`Generated ${result.file?.fileName || "file"} in ${result.folderPath || "Movies folder"}`);
+      setSuccessMsg(
+        `Generated ${result.file?.fileName || "file"} in ${result.folderPath || "Movies folder"}`,
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate movie file. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to generate movie file. Please try again.",
+      );
     } finally {
       setEpisodesLoading(false);
     }
@@ -223,7 +276,10 @@ export default function JioHotstar() {
       <div className="relative z-10">
         <div className="flex items-center justify-between p-6 border-b border-slate-800">
           <Link to="/">
-            <Button variant="ghost" className="text-slate-400 hover:text-white hover:bg-slate-800">
+            <Button
+              variant="ghost"
+              className="text-slate-400 hover:text-white hover:bg-slate-800"
+            >
               <ArrowLeft className="w-5 h-5 mr-2" />
               Back
             </Button>
@@ -237,7 +293,9 @@ export default function JioHotstar() {
         <div className="max-w-2xl mx-auto px-6 py-12">
           <form onSubmit={handleSearch} className="mb-12">
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700">
-              <label className="block text-white font-semibold mb-4">Enter JioHotstar ID</label>
+              <label className="block text-white font-semibold mb-4">
+                Enter JioHotstar ID
+              </label>
               <div className="flex gap-3">
                 <Input
                   type="text"
@@ -250,8 +308,16 @@ export default function JioHotstar() {
                   className="bg-slate-700 border-slate-600 text-white placeholder-slate-400 focus:border-purple-500"
                   disabled={loading}
                 />
-                <Button type="submit" disabled={loading} className="bg-gradient-to-r from-purple-600 to-purple-800 hover:opacity-90 text-white border-0 px-8">
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-gradient-to-r from-purple-600 to-purple-800 hover:opacity-90 text-white border-0 px-8"
+                >
+                  {loading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Search className="w-5 h-5" />
+                  )}
                 </Button>
               </div>
             </div>
@@ -260,7 +326,9 @@ export default function JioHotstar() {
           {error && (
             <Alert className="mb-8 bg-red-500/10 border-red-500/50">
               <AlertCircle className="h-5 w-5 text-red-500" />
-              <AlertDescription className="text-red-200 ml-3">{error}</AlertDescription>
+              <AlertDescription className="text-red-200 ml-3">
+                {error}
+              </AlertDescription>
             </Alert>
           )}
 
@@ -276,34 +344,57 @@ export default function JioHotstar() {
 
                 <div className="space-y-6">
                   <div>
-                    <p className="text-slate-400 text-sm font-medium mb-2">TITLE</p>
-                    <p className="text-2xl font-bold text-white">{data.title}</p>
+                    <p className="text-slate-400 text-sm font-medium mb-2">
+                      TITLE
+                    </p>
+                    <p className="text-2xl font-bold text-white">
+                      {data.title}
+                    </p>
                   </div>
 
                   <div className="grid md:grid-cols-3 gap-6">
                     <div className="bg-slate-700/50 rounded-lg p-4">
-                      <p className="text-slate-400 text-sm font-medium mb-2">YEAR</p>
-                      <p className="text-xl font-semibold text-white">{data.year}</p>
-                    </div>
-
-                    <div className="bg-slate-700/50 rounded-lg p-4">
-                      <p className="text-slate-400 text-sm font-medium mb-2">CATEGORY</p>
-                      <p className="text-xl font-semibold">
-                        <span className={`px-3 py-1 rounded-full text-sm font-bold ${data.category === "Movie" ? "bg-blue-500/30 text-blue-300" : "bg-purple-500/30 text-purple-300"}`}>{data.category}</span>
+                      <p className="text-slate-400 text-sm font-medium mb-2">
+                        YEAR
+                      </p>
+                      <p className="text-xl font-semibold text-white">
+                        {data.year}
                       </p>
                     </div>
 
                     <div className="bg-slate-700/50 rounded-lg p-4">
-                      <p className="text-slate-400 text-sm font-medium mb-2">ID</p>
+                      <p className="text-slate-400 text-sm font-medium mb-2">
+                        CATEGORY
+                      </p>
+                      <p className="text-xl font-semibold">
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-bold ${data.category === "Movie" ? "bg-blue-500/30 text-blue-300" : "bg-purple-500/30 text-purple-300"}`}
+                        >
+                          {data.category}
+                        </span>
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-700/50 rounded-lg p-4">
+                      <p className="text-slate-400 text-sm font-medium mb-2">
+                        ID
+                      </p>
                       <p className="text-xl font-semibold text-white">{id}</p>
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-slate-400 text-sm font-medium mb-2">LANGUAGES</p>
+                    <p className="text-slate-400 text-sm font-medium mb-2">
+                      LANGUAGES
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {data.languages.split(",").map((lang, idx) => (
-                        <span key={idx} className="bg-slate-700/50 text-slate-300 px-3 py-2 rounded-lg text-sm">{lang.trim()}</span>
+                        <span
+                          key={idx}
+                          className="bg-slate-700/50 text-slate-300 px-3 py-2 rounded-lg text-sm"
+                        >
+                          {lang.trim()}
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -314,7 +405,9 @@ export default function JioHotstar() {
                 <div className="mt-4">
                   <div className="flex items-center gap-2 mb-4">
                     <Play className="w-5 h-5 text-slate-400" />
-                    <p className="text-slate-400 text-sm font-medium">STREAMING</p>
+                    <p className="text-slate-400 text-sm font-medium">
+                      STREAMING
+                    </p>
                   </div>
 
                   <Button
@@ -324,7 +417,8 @@ export default function JioHotstar() {
                   >
                     {generating ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating Movie File...
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
+                        Generating Movie File...
                       </>
                     ) : (
                       <>
@@ -335,72 +429,117 @@ export default function JioHotstar() {
 
                   {successMsg && (
                     <Alert className="mt-4 bg-green-500/10 border-green-500/50">
-                      <AlertDescription className="text-green-200 ml-3">{successMsg}</AlertDescription>
+                      <AlertDescription className="text-green-200 ml-3">
+                        {successMsg}
+                      </AlertDescription>
                     </Alert>
                   )}
                 </div>
               )}
 
-              {data.category === "Series" && data.seasons && data.seasons.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Tv className="w-5 h-5 text-slate-400" />
-                    <p className="text-slate-400 text-sm font-medium">SEASONS ({data.seasons.length})</p>
-                  </div>
+              {data.category === "Series" &&
+                data.seasons &&
+                data.seasons.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Tv className="w-5 h-5 text-slate-400" />
+                      <p className="text-slate-400 text-sm font-medium">
+                        SEASONS ({data.seasons.length})
+                      </p>
+                    </div>
 
-                  <div className="mb-4">
-                    <Button onClick={handleFetchAllSeasons} disabled={episodesLoading} className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:opacity-90 text-white border-0">
-                      {episodesLoading && !selectedSeason ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Fetching All Seasons...
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-4 h-4 mr-2" /> Fetch All Seasons
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {data.seasons.map((season) => (
-                      <Button key={season.id} onClick={() => handleFetchSeason(season)} disabled={episodesLoading} variant={selectedSeason?.id === season.id ? "default" : "outline"} className={`${selectedSeason?.id === season.id ? "bg-red-600 hover:bg-red-700 border-red-600 text-white" : "border-slate-600 text-slate-300 hover:bg-slate-700"}`}>
-                        Season {season.number} ({season.episodeCount ?? 0} eps)
+                    <div className="mb-4">
+                      <Button
+                        onClick={handleFetchAllSeasons}
+                        disabled={episodesLoading}
+                        className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:opacity-90 text-white border-0"
+                      >
+                        {episodesLoading && !selectedSeason ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
+                            Fetching All Seasons...
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-4 h-4 mr-2" /> Fetch All Seasons
+                          </>
+                        )}
                       </Button>
-                    ))}
-                  </div>
+                    </div>
 
-                  {episodes.length > 0 && (
-                    <div className="mt-4">
-                      <div className="bg-slate-700/30 rounded-lg p-4 mb-6">
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-slate-400 text-xs font-medium mb-1">TOTAL EPISODES</p>
-                            <p className="text-2xl font-bold text-green-400">{episodes.length}</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {data.seasons.map((season) => (
+                        <Button
+                          key={season.id}
+                          onClick={() => handleFetchSeason(season)}
+                          disabled={episodesLoading}
+                          variant={
+                            selectedSeason?.id === season.id
+                              ? "default"
+                              : "outline"
+                          }
+                          className={`${selectedSeason?.id === season.id ? "bg-red-600 hover:bg-red-700 border-red-600 text-white" : "border-slate-600 text-slate-300 hover:bg-slate-700"}`}
+                        >
+                          Season {season.number} ({season.episodeCount ?? 0}{" "}
+                          eps)
+                        </Button>
+                      ))}
+                    </div>
+
+                    {episodes.length > 0 && (
+                      <div className="mt-4">
+                        <div className="bg-slate-700/30 rounded-lg p-4 mb-6">
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-slate-400 text-xs font-medium mb-1">
+                                TOTAL EPISODES
+                              </p>
+                              <p className="text-2xl font-bold text-green-400">
+                                {episodes.length}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {episodes.map((ep) => (
-                          <div key={ep.id} className="bg-slate-800/50 rounded p-3 text-center">
-                            <p className="text-sm font-bold text-white">{ep.title}</p>
-                            <p className="text-xs text-slate-400">{ep.episode}</p>
-                          </div>
-                        ))}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {episodes.map((ep) => (
+                            <div
+                              key={ep.id}
+                              className="bg-slate-800/50 rounded p-3 text-center"
+                            >
+                              <p className="text-sm font-bold text-white">
+                                {ep.title}
+                              </p>
+                              <p className="text-xs text-slate-400">
+                                {ep.episode}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                    )}
+                  </div>
+                )}
 
-              <Button onClick={() => { setId(""); setData(null); }} variant="outline" className="w-full border-slate-600 text-white hover:bg-slate-800">Search Again</Button>
+              <Button
+                onClick={() => {
+                  setId("");
+                  setData(null);
+                }}
+                variant="outline"
+                className="w-full border-slate-600 text-white hover:bg-slate-800"
+              >
+                Search Again
+              </Button>
             </div>
           )}
 
           {!data && !error && !loading && (
             <div className="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 text-center">
-              <p className="text-slate-400">Enter a JioHotstar ID above to search for movies and series information.</p>
+              <p className="text-slate-400">
+                Enter a JioHotstar ID above to search for movies and series
+                information.
+              </p>
             </div>
           )}
         </div>

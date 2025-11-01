@@ -2,7 +2,16 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search, AlertCircle, Loader2, Check, Play, Tv, Film } from "lucide-react";
+import {
+  ArrowLeft,
+  Search,
+  AlertCircle,
+  Loader2,
+  Check,
+  Play,
+  Tv,
+  Film,
+} from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCookie } from "@/hooks/useCookie";
 import { useToken } from "@/hooks/useToken";
@@ -43,8 +52,20 @@ export default function AmazonPrime() {
   const [showHistory, setShowHistory] = useState(false);
 
   // Cookie/token hooks (auto-fetch to improve UX)
-  const { tHash, loading: cookieLoading, error: cookieError, fetchCookie, hasCookie } = useCookie();
-  const { primeToken, loading: tokenLoading, error: tokenError, fetchToken, hasToken } = useToken();
+  const {
+    tHash,
+    loading: cookieLoading,
+    error: cookieError,
+    fetchCookie,
+    hasCookie,
+  } = useCookie();
+  const {
+    primeToken,
+    loading: tokenLoading,
+    error: tokenError,
+    fetchToken,
+    hasToken,
+  } = useToken();
 
   useEffect(() => {
     // If no cookie, fetch it; once cookie present, fetch token if missing
@@ -248,7 +269,6 @@ export default function AmazonPrime() {
 
         {/* Main Content */}
         <div className="max-w-2xl mx-auto px-6 py-12">
-
           {/* Search Form */}
           <form onSubmit={handleSearch} className="mb-12">
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700">
@@ -374,7 +394,9 @@ export default function AmazonPrime() {
                 <div className="mt-4">
                   <div className="flex items-center gap-2 mb-4">
                     <Play className="w-5 h-5 text-slate-400" />
-                    <p className="text-slate-400 text-sm font-medium">STREAMING</p>
+                    <p className="text-slate-400 text-sm font-medium">
+                      STREAMING
+                    </p>
                   </div>
 
                   <Button
@@ -402,13 +424,20 @@ export default function AmazonPrime() {
 
                         const result = await response.json();
 
-                        if (!response.ok) throw new Error(result.error || "Failed to generate movie file");
+                        if (!response.ok)
+                          throw new Error(
+                            result.error || "Failed to generate movie file",
+                          );
 
                         setSuccessMsg(
                           `Generated ${result.file?.fileName || "file"} in ${result.folderPath || "Movies folder"}`,
                         );
                       } catch (err) {
-                        setError(err instanceof Error ? err.message : "Failed to generate movie file. Please try again.");
+                        setError(
+                          err instanceof Error
+                            ? err.message
+                            : "Failed to generate movie file. Please try again.",
+                        );
                       } finally {
                         setGenerating(false);
                       }
@@ -418,7 +447,8 @@ export default function AmazonPrime() {
                   >
                     {generating ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating Movie File...
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
+                        Generating Movie File...
                       </>
                     ) : (
                       <>
@@ -438,79 +468,96 @@ export default function AmazonPrime() {
               )}
 
               {/* Seasons for Series */}
-              {data.category === "Series" && data.seasons && data.seasons.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Tv className="w-5 h-5 text-slate-400" />
-                    <p className="text-slate-400 text-sm font-medium">SEASONS ({data.seasons.length})</p>
-                  </div>
+              {data.category === "Series" &&
+                data.seasons &&
+                data.seasons.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <Tv className="w-5 h-5 text-slate-400" />
+                      <p className="text-slate-400 text-sm font-medium">
+                        SEASONS ({data.seasons.length})
+                      </p>
+                    </div>
 
-                  {/* Fetch All Seasons Button */}
-                  <div className="mb-4">
-                    <Button
-                      onClick={handleFetchAllSeasons}
-                      disabled={episodesLoading}
-                      className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:opacity-90 text-white border-0"
-                    >
-                      {episodesLoading && !selectedSeason ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Fetching All Seasons...
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-4 h-4 mr-2" /> Fetch All Seasons
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  {/* Individual Season Buttons */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {data.seasons.map((season) => (
+                    {/* Fetch All Seasons Button */}
+                    <div className="mb-4">
                       <Button
-                        key={season.id}
-                        onClick={() => handleFetchSeason(season)}
+                        onClick={handleFetchAllSeasons}
                         disabled={episodesLoading}
-                        variant={
-                          selectedSeason?.id === season.id
-                            ? "default"
-                            : "outline"
-                        }
-                        className={`${
-                          selectedSeason?.id === season.id
-                            ? "bg-red-600 hover:bg-red-700 border-red-600 text-white"
-                            : "border-slate-600 text-slate-300 hover:bg-slate-700"
-                        }`}
+                        className="w-full bg-gradient-to-r from-purple-600 to-purple-800 hover:opacity-90 text-white border-0"
                       >
-                        Season {season.number} ({season.episodeCount ?? 0} eps)
+                        {episodesLoading && !selectedSeason ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
+                            Fetching All Seasons...
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-4 h-4 mr-2" /> Fetch All Seasons
+                          </>
+                        )}
                       </Button>
-                    ))}
-                  </div>
+                    </div>
 
-                  {/* Episodes Grid */}
-                  {episodes.length > 0 && (
-                    <div className="mt-4">
-                      <div className="bg-slate-700/30 rounded-lg p-4 mb-6">
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-slate-400 text-xs font-medium mb-1">TOTAL EPISODES</p>
-                            <p className="text-2xl font-bold text-green-400">{episodes.length}</p>
+                    {/* Individual Season Buttons */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {data.seasons.map((season) => (
+                        <Button
+                          key={season.id}
+                          onClick={() => handleFetchSeason(season)}
+                          disabled={episodesLoading}
+                          variant={
+                            selectedSeason?.id === season.id
+                              ? "default"
+                              : "outline"
+                          }
+                          className={`${
+                            selectedSeason?.id === season.id
+                              ? "bg-red-600 hover:bg-red-700 border-red-600 text-white"
+                              : "border-slate-600 text-slate-300 hover:bg-slate-700"
+                          }`}
+                        >
+                          Season {season.number} ({season.episodeCount ?? 0}{" "}
+                          eps)
+                        </Button>
+                      ))}
+                    </div>
+
+                    {/* Episodes Grid */}
+                    {episodes.length > 0 && (
+                      <div className="mt-4">
+                        <div className="bg-slate-700/30 rounded-lg p-4 mb-6">
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-slate-400 text-xs font-medium mb-1">
+                                TOTAL EPISODES
+                              </p>
+                              <p className="text-2xl font-bold text-green-400">
+                                {episodes.length}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {episodes.map((ep) => (
-                          <div key={ep.id} className="bg-slate-800/50 rounded p-3 text-center">
-                            <p className="text-sm font-bold text-white">{ep.title}</p>
-                            <p className="text-xs text-slate-400">{ep.episode}</p>
-                          </div>
-                        ))}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {episodes.map((ep) => (
+                            <div
+                              key={ep.id}
+                              className="bg-slate-800/50 rounded p-3 text-center"
+                            >
+                              <p className="text-sm font-bold text-white">
+                                {ep.title}
+                              </p>
+                              <p className="text-xs text-slate-400">
+                                {ep.episode}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                    )}
+                  </div>
+                )}
 
               {/* Search Again Button */}
               <Button

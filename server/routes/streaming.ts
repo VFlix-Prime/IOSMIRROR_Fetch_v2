@@ -228,7 +228,11 @@ export const handleGenerateMovie: RequestHandler = async (req, res) => {
       const safeMovieName = sanitizeFileName(movieName);
       const fileName = `${safeMovieName}.strm`;
       const filePath = path.join(moviesFolder, fileName);
-      const streamUrl = generateStrmContent({ id: movieId }, primeToken, service);
+      const streamUrl = generateStrmContent(
+        { id: movieId },
+        primeToken,
+        service,
+      );
 
       fs.writeFileSync(filePath, streamUrl, "utf-8");
 

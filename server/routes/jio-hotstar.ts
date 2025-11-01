@@ -52,18 +52,26 @@ export const handleJioHotstar: RequestHandler = async (req, res) => {
     try {
       jsonData = JSON.parse(text);
     } catch (e) {
-      console.error("JioHotstar parse error:", e, "Text:", text.substring(0, 300));
+      console.error(
+        "JioHotstar parse error:",
+        e,
+        "Text:",
+        text.substring(0, 300),
+      );
       return res.status(500).json({ error: "Invalid JSON response from API" });
     }
 
     // Determine if it's a movie or series
-    const isSeriesData = Array.isArray(jsonData.season) && jsonData.season.length > 0;
+    const isSeriesData =
+      Array.isArray(jsonData.season) && jsonData.season.length > 0;
     const category = isSeriesData ? "Series" : "Movie";
 
     // Extract languages
     const languagesArray = jsonData.lang || [];
     const languages = Array.isArray(languagesArray)
-      ? languagesArray.map((lang) => (typeof lang === "string" ? lang : lang.l || lang)).join(", ")
+      ? languagesArray
+          .map((lang) => (typeof lang === "string" ? lang : lang.l || lang))
+          .join(", ")
       : "Unknown";
 
     // Process seasons similarly to Netflix/Prime parsing
