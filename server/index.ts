@@ -5,6 +5,7 @@ import { handleDemo } from "./routes/demo";
 import { handleNetflix } from "./routes/netflix";
 import { handleAmazonPrime } from "./routes/amazon-prime";
 import { handleJioHotstar } from "./routes/jio-hotstar";
+import { handleFetchCookie, handleCookieStatus } from "./routes/cookie";
 
 export function createServer() {
   const app = express();
@@ -21,6 +22,10 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+
+  // Cookie routes
+  app.get("/api/fetch-cookie", handleFetchCookie);
+  app.get("/api/cookie-status", handleCookieStatus);
 
   // Streaming service routes
   app.get("/api/netflix", handleNetflix);
