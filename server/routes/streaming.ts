@@ -196,17 +196,13 @@ export const handleGenerateMovie: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const cleanMovieName = movieName.trim();
-    const folderPath = path.join(
-      process.cwd(),
-      `OTT/${service}/Movies/${cleanMovieName}`,
-    );
+    const moviesFolder = path.join(process.cwd(), `OTT/${service}/Movies`);
 
     try {
-      ensureDirectoryExists(folderPath);
+      ensureDirectoryExists(moviesFolder);
 
-      const fileName = "Movie.strm";
-      const filePath = path.join(folderPath, fileName);
+      const fileName = `${movieId}.strm`;
+      const filePath = path.join(moviesFolder, fileName);
       const streamUrl = generateStrmContent({ id: movieId }, primeToken);
 
       fs.writeFileSync(filePath, streamUrl, "utf-8");
@@ -215,7 +211,7 @@ export const handleGenerateMovie: RequestHandler = async (req, res) => {
         success: true,
         movieName,
         movieId,
-        folderPath,
+        folderPath: moviesFolder,
         file: {
           fileName,
           filePath,
@@ -225,7 +221,7 @@ export const handleGenerateMovie: RequestHandler = async (req, res) => {
       };
 
       console.log(
-        `Created movie .strm file for ${movieName} at ${folderPath}`,
+        `Created movie .strm file ${fileName} for ${movieName} at ${moviesFolder}`,
       );
 
       res.json(response);
