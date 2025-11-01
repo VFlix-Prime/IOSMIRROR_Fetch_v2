@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
-import { Play, Film, Tv } from "lucide-react";
+import { Play, Film, Tv, RefreshCw, CheckCircle2, AlertCircle, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CookieStatus } from "@/components/CookieStatus";
+import { useCookie } from "@/hooks/useCookie";
+import { useState } from "react";
 
 export default function Index() {
+  const { tHash, loading, error, fetchCookie, hasCookie } = useCookie();
+  const [copied, setCopied] = useState(false);
   const services = [
     {
       id: "netflix",
