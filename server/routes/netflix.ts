@@ -75,8 +75,9 @@ export const handleNetflix: RequestHandler = async (req, res) => {
       return res.status(500).json({ error: "Invalid response format from API" });
     }
 
-    // Check if we have valid data (status should be "y" or data should have title)
-    if (!jsonData || (!jsonData.title && jsonData.status !== "y")) {
+    // Check if we have valid data
+    if (!jsonData || !jsonData.title) {
+      console.error("Invalid response data:", { status: jsonData?.status, hasTitle: !!jsonData?.title });
       return res.status(404).json({ error: "Content not found" });
     }
 
