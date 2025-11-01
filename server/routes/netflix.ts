@@ -1,34 +1,5 @@
 import { RequestHandler } from "express";
 
-interface NetflixAPIResponse {
-  status: string;
-  title: string;
-  year: string;
-  d_lang: string;
-  type: string;
-  runtime: string;
-  match: string;
-  hdsd: string;
-  genre: string;
-  cast: string;
-  short_cast: string;
-  creator: string;
-  director: string;
-  writer: string;
-  desc: string;
-  m_desc: string;
-  m_reason: string;
-  ua: string;
-  thismovieis: string;
-  season?: Array<{
-    s: string;
-    id: string;
-    ep: string;
-    sele: string;
-  }>;
-  oin?: string;
-}
-
 interface NetflixResponse {
   title: string;
   year: string;
@@ -55,46 +26,62 @@ export const handleNetflix: RequestHandler = async (req, res) => {
   }
 
   try {
-    const response = await fetch(`https://net20.cc/post.php?id=${encodeURIComponent(id)}`, {
+    const fetchOptions = {
+      method: "GET",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/json",
+        "Accept-Language": "en-US,en;q=0.9",
         "Referer": "https://net20.cc/",
       },
-    });
+    };
+
+    console.log(`Fetching Netflix data for ID: ${id}`);
+    const url = `https://net20.cc/post.php?id=${encodeURIComponent(id)}`;
+    const response = await fetch(url, fetchOptions);
 
     const text = await response.text();
+    console.log(`Response status: ${response.status}, length: ${text.length}`);
+
+    if (!text) {
+      return res.status(500).json({ error: "Empty response from API" });
+    }
 
     let jsonData: any;
     try {
       jsonData = JSON.parse(text);
-    } catch (parseError) {
-      console.error("Failed to parse JSON. Raw response:", text.substring(0, 500));
-      return res.status(500).json({ error: "Invalid response format from API" });
+    } catch (e) {
+      console.error("Parse error:", e, "Text:", text.substring(0, 200));
+      return res.status(500).json({ error: "Invalid JSON response from API" });
     }
 
-    console.log("Netflix API response:", {
-      hasTitle: !!jsonData?.title,
+    // Log what we got
+    console.log("API Response:", {
       status: jsonData?.status,
-      keys: Object.keys(jsonData || {}).slice(0, 10)
+      hasTitle: !!jsonData?.title,
+      hasYear: !!jsonData?.year,
     });
 
-    // Check if we have valid data - title is required
-    if (!jsonData?.title) {
-      console.error("No title found in response");
-      return res.status(404).json({ error: "Content not found" });
+    // Check if the API returned success status
+    if (jsonData?.status !== "y") {
+      return res.status(404).json({ error: "Content not found on Netflix" });
     }
 
-    // Determine if it's a movie or series based on season array
+    // Check if we have at least a title
+    if (!jsonData?.title) {
+      return res.status(404).json({ error: "No title data available" });
+    }
+
+    // Determine if it's a movie or series
     const isSeriesData = Array.isArray(jsonData.season) && jsonData.season.length > 0;
     const category = isSeriesData ? "Series" : "Movie";
 
-    // Parse genre - it comes as HTML encoded string
+    // Parse genre
     const genre = jsonData.genre
       ? jsonData.genre.replace(/&amp;/g, "&").replace(/&quot;/g, '"')
       : "Unknown";
 
-    // Get cast list
+    // Get cast
     const castList = jsonData.short_cast || jsonData.cast || "Unknown";
 
     const result: NetflixResponse = {
