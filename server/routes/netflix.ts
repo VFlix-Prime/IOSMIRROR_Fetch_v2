@@ -59,25 +59,29 @@ export const handleNetflix: RequestHandler = async (req, res) => {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "Accept": "application/json",
+        "Referer": "https://net20.cc/",
       },
     });
 
-    if (!response.ok) {
-      console.error(`API returned status ${response.status}`);
-      return res.status(response.status).json({ error: "Failed to fetch data from Netflix API" });
-    }
+    const text = await response.text();
 
     let jsonData: any;
     try {
-      jsonData = await response.json();
+      jsonData = JSON.parse(text);
     } catch (parseError) {
-      console.error("Failed to parse JSON:", parseError);
+      console.error("Failed to parse JSON. Raw response:", text.substring(0, 500));
       return res.status(500).json({ error: "Invalid response format from API" });
     }
 
-    // Check if we have valid data
-    if (!jsonData || !jsonData.title) {
-      console.error("Invalid response data:", { status: jsonData?.status, hasTitle: !!jsonData?.title });
+    console.log("Netflix API response:", {
+      hasTitle: !!jsonData?.title,
+      status: jsonData?.status,
+      keys: Object.keys(jsonData || {}).slice(0, 10)
+    });
+
+    // Check if we have valid data - title is required
+    if (!jsonData?.title) {
+      console.error("No title found in response");
       return res.status(404).json({ error: "Content not found" });
     }
 
@@ -90,7 +94,7 @@ export const handleNetflix: RequestHandler = async (req, res) => {
       ? jsonData.genre.replace(/&amp;/g, "&").replace(/&quot;/g, '"')
       : "Unknown";
 
-    // Get first cast member or use short_cast
+    // Get cast list
     const castList = jsonData.short_cast || jsonData.cast || "Unknown";
 
     const result: NetflixResponse = {
@@ -111,7 +115,7 @@ export const handleNetflix: RequestHandler = async (req, res) => {
       contentWarning: jsonData.m_reason || undefined,
     };
 
-    res.json(result);
+    res.status(200).json(result);
   } catch (error) {
     console.error("Netflix API error:", error);
     res.status(500).json({ error: "Failed to fetch data. Please try again." });
