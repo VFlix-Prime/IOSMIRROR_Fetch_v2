@@ -8,6 +8,7 @@ import {
   AlertCircle,
   Copy,
   Check,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCookie } from "@/hooks/useCookie";
