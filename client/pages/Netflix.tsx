@@ -110,6 +110,11 @@ export default function Netflix() {
   const [postersLoading, setPostersLoading] = useState(false);
   const [postersStatus, setPostersStatus] = useState("");
 
+  // Show/hide posters and fetching state
+  const [showPosters, setShowPosters] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [fetchProgress, setFetchProgress] = useState("");
+
   useEffect(() => {
     const load = async () => {
       try {
