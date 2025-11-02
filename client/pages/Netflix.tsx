@@ -163,6 +163,23 @@ export default function Netflix() {
     }
   };
 
+  const handleRefreshAllPosters = async () => {
+    setPostersStatus("");
+    setPostersLoading(true);
+    try {
+      const r = await fetch("/api/netflix/posters/refresh", { method: "POST" });
+      const j = await r.json();
+      if (!r.ok || !j.success) throw new Error(j.error || "Refresh failed");
+      setPostersAll(j.items || []);
+      setPostersStatus(j.newCount ? `${j.newCount} new` : "Up to date");
+    } catch (e) {
+      setPostersStatus("Refresh failed");
+    } finally {
+      setPostersLoading(false);
+      setTimeout(() => setPostersStatus(""), 3000);
+    }
+  };
+
   const handleSavePath = async () => {
     setSaving(true);
     setSaveStatus("");
