@@ -91,6 +91,48 @@ export default function Netflix() {
   const [history, setHistory] = useState<StrmGenerationResult[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
+  // Per-service save location (Netflix)
+  const [savePath, setSavePath] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("/api/settings");
+        const json = await res.json();
+        if (json && json.settings) {
+          const s = json.settings;
+          setSavePath(s.netflixBaseFolder || s.defaultBaseFolder || "");
+        }
+      } catch (_) {
+        // ignore
+      }
+    };
+    load();
+  }, []);
+
+  const handleSavePath = async () => {
+    setSaving(true);
+    setSaveStatus("");
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ netflixBaseFolder: savePath }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to save");
+      }
+      setSaveStatus("Saved");
+    } catch (e) {
+      setSaveStatus("Failed to save");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
 
