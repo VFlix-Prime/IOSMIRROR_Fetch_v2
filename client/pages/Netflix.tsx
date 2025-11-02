@@ -97,8 +97,9 @@ export default function Netflix() {
   const [saveStatus, setSaveStatus] = useState("");
 
   // Top10 posters
-  const [top10, setTop10] = useState<Array<{ id: string; poster: string }>>([]);
+  const [top10, setTop10] = useState<Array<{ id: string; poster: string; seen?: boolean }>>([]);
   const [topLoading, setTopLoading] = useState(false);
+  const [topStatus, setTopStatus] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -113,7 +114,7 @@ export default function Netflix() {
         // ignore
       }
 
-      // fetch top10 posters
+      // fetch cached top10 posters
       setTopLoading(true);
       try {
         const r = await fetch("/api/netflix/top10");
@@ -127,6 +128,23 @@ export default function Netflix() {
     };
     load();
   }, []);
+
+  const handleRefreshTop10 = async () => {
+    setTopStatus("");
+    setTopLoading(true);
+    try {
+      const r = await fetch("/api/netflix/top10/refresh", { method: "POST" });
+      const j = await r.json();
+      if (!r.ok || !j.success) throw new Error(j.error || "Refresh failed");
+      setTop10(j.items.slice(0, 10));
+      setTopStatus(j.newCount ? `${j.newCount} new` : "Up to date");
+    } catch (e) {
+      setTopStatus("Refresh failed");
+    } finally {
+      setTopLoading(false);
+      setTimeout(() => setTopStatus(""), 3000);
+    }
+  };
 
   const handleSavePath = async () => {
     setSaving(true);
