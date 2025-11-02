@@ -586,7 +586,6 @@ export default function AmazonPrime() {
             </div>
           ) : showPosters ? (
             <div className="mb-8">
-
               {postersLoading ? (
                 <div className="text-slate-400">Loading...</div>
               ) : slider.length === 0 ? (
