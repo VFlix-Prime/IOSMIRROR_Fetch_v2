@@ -696,6 +696,141 @@ export default function AmazonPrime() {
             </div>
           )}
 
+          {/* History Toggle Button */}
+          {history.length > 0 && (
+            <Button
+              onClick={() => setShowHistory(!showHistory)}
+              variant="outline"
+              className="w-full border-slate-600 text-white hover:bg-slate-800 mt-6"
+            >
+              {showHistory ? "Hide" : "Show"} Generation History (
+              {history.length})
+            </Button>
+          )}
+
+          {/* History Section */}
+          {showHistory && history.length > 0 && (
+            <div className="mt-8 space-y-4 animate-in fade-in duration-300">
+              {history.map((result, historyIdx) => {
+                const isMovie = result.movieName && result.file;
+                const isSeries =
+                  result.seriesName && result.seasons && result.seasons.length;
+
+                return (
+                  <div
+                    key={historyIdx}
+                    className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-amber-500/30 shadow-lg shadow-amber-500/20"
+                  >
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="bg-amber-500/20 rounded-full p-3">
+                        {isMovie ? (
+                          <Film className="w-6 h-6 text-amber-400" />
+                        ) : (
+                          <Tv className="w-6 h-6 text-amber-400" />
+                        )}
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-white">
+                          {result.movieName || result.seriesName}
+                        </h2>
+                        <p className="text-slate-400 text-sm">
+                          {isMovie ? "Movie" : "Series"} •{" "}
+                          {new Date(result.generatedAt).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Movie Display */}
+                    {isMovie && (
+                      <div className="space-y-4">
+                        <div className="bg-slate-700/50 rounded-lg p-4 border border-slate-600">
+                          <p className="text-slate-400 text-xs mb-3">
+                            {result.folderPath}
+                          </p>
+
+                          <div className="bg-slate-800/50 rounded p-3 text-center">
+                            <p className="text-sm font-bold text-white mb-1">
+                              {result.file.fileName}
+                            </p>
+                            <p className="text-xs text-green-400">
+                              ✓ Generated
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Series Display */}
+                    {isSeries && (
+                      <>
+                        <div className="bg-slate-700/30 rounded-lg p-4 mb-6">
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-slate-400 text-xs font-medium mb-1">
+                                TOTAL FILES
+                              </p>
+                              <p className="text-2xl font-bold text-green-400">
+                                {result.totalFilesCreated}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-xs font-medium mb-1">
+                                SEASONS PROCESSED
+                              </p>
+                              <p className="text-2xl font-bold text-blue-400">
+                                {result.totalSeasonsProcessed}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          {result.seasons.map((season, idx) => (
+                            <div
+                              key={idx}
+                              className="bg-slate-700/50 rounded-lg p-4 border border-slate-600"
+                            >
+                              <div className="flex items-center gap-3 mb-3">
+                                <Tv className="w-4 h-4 text-slate-400" />
+                                <h3 className="text-white font-semibold flex-grow">
+                                  Season {season.seasonNumber}
+                                </h3>
+                                <span className="bg-purple-500/30 text-purple-300 px-3 py-1 rounded-full text-sm font-bold">
+                                  {season.totalEpisodes} Episodes
+                                </span>
+                              </div>
+
+                              <p className="text-slate-400 text-xs mb-3">
+                                {season.folderPath}
+                              </p>
+
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                {season.files.map((file, fileIdx) => (
+                                  <div
+                                    key={fileIdx}
+                                    className="bg-slate-800/50 rounded p-2 text-center hover:bg-slate-800 transition-colors cursor-pointer"
+                                    title={file.streamUrl}
+                                  >
+                                    <p className="text-xs font-bold text-white">
+                                      {file.fileName}
+                                    </p>
+                                    <p className="text-xs text-slate-500 truncate">
+                                      ✓ Generated
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           {/* Error Alert */}
           {error && (
             <Alert className="mb-8 bg-red-500/10 border-red-500/50">
