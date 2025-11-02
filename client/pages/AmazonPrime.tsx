@@ -293,10 +293,11 @@ export default function AmazonPrime() {
     }
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = async (e: React.FormEvent, searchId?: string) => {
+    e.preventDefault?.();
 
-    if (!id.trim()) {
+    const idToSearch = searchId || id;
+    if (!idToSearch.trim()) {
       setError("Please enter an ID");
       return;
     }
@@ -307,7 +308,7 @@ export default function AmazonPrime() {
 
     try {
       const response = await fetch(
-        `/api/amazon-prime?id=${encodeURIComponent(id)}`,
+        `/api/amazon-prime?id=${encodeURIComponent(idToSearch)}`,
       );
 
       const data = await response.json();
