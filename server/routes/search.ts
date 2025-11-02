@@ -121,3 +121,47 @@ export const handleUnifiedSearch: RequestHandler = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const handleNetflixSearch: RequestHandler = async (req, res) => {
+  const { q } = req.query;
+
+  if (!q || typeof q !== "string" || q.trim() === "") {
+    return res.status(400).json({ error: "Missing or empty search query" });
+  }
+
+  try {
+    const results = await searchNetflix(q);
+
+    return res.json({
+      query: q,
+      provider: "netflix",
+      results,
+      count: results.length,
+    });
+  } catch (err) {
+    console.error("Netflix search error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const handlePrimeSearch: RequestHandler = async (req, res) => {
+  const { q } = req.query;
+
+  if (!q || typeof q !== "string" || q.trim() === "") {
+    return res.status(400).json({ error: "Missing or empty search query" });
+  }
+
+  try {
+    const results = await searchPrime(q);
+
+    return res.json({
+      query: q,
+      provider: "prime",
+      results,
+      count: results.length,
+    });
+  } catch (err) {
+    console.error("Prime search error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
