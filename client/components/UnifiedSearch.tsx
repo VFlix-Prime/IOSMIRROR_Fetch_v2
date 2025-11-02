@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Loader2, AlertCircle, Play, Film } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,13 +14,13 @@ interface SearchResult {
 }
 
 export default function UnifiedSearch() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searched, setSearched] = useState(false);
   const [fetchingId, setFetchingId] = useState<string | null>(null);
-  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const performSearch = async (searchQuery: string) => {
     try {
