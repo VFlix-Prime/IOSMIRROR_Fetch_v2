@@ -56,6 +56,8 @@ export function createServer() {
 
   // Search routes
   app.get("/api/search", handleUnifiedSearch);
+  app.get("/api/search/netflix", handleNetflixSearch);
+  app.get("/api/search/prime", handlePrimeSearch);
 
   // Cookie routes
   app.get("/api/fetch-cookie", handleFetchCookie);
