@@ -267,6 +267,9 @@ export default function Netflix() {
           try {
             await fetch("/api/netflix/top10/mark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [serviceId] }) });
           } catch (_) {}
+          try {
+            await fetch("/api/netflix/posters/mark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [serviceId] }) });
+          } catch (_) {}
         }
       }
     } catch (err) {
@@ -957,7 +960,7 @@ export default function Netflix() {
                               <span>⏱️ {episode.duration}</span>
                               {episode.completed === "1" && (
                                 <span className="text-green-400">
-                                  ✓ Watched
+                                  ��� Watched
                                 </span>
                               )}
                             </div>
