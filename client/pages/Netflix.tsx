@@ -81,6 +81,7 @@ interface StrmGenerationResult {
 }
 
 export default function Netflix() {
+  const [searchParams] = useSearchParams();
   const [id, setId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
