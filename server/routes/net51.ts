@@ -6,15 +6,16 @@ import * as path from "path";
 
 const DATA_DIR = path.join(process.cwd(), "server", "data");
 const CACHE_PATH = path.join(DATA_DIR, "top10-cache.json");
+const ALL_CACHE_PATH = path.join(DATA_DIR, "all-posters-cache.json");
 
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-function readCache() {
+function readCache(pathName = CACHE_PATH) {
   try {
-    if (fs.existsSync(CACHE_PATH)) {
-      const raw = fs.readFileSync(CACHE_PATH, "utf-8");
+    if (fs.existsSync(pathName)) {
+      const raw = fs.readFileSync(pathName, "utf-8");
       return JSON.parse(raw);
     }
   } catch (e) {
@@ -23,12 +24,54 @@ function readCache() {
   return { items: [], lastUpdated: 0 };
 }
 
-function writeCache(data: any) {
+function writeCache(data: any, pathName = CACHE_PATH) {
   ensureDataDir();
-  fs.writeFileSync(CACHE_PATH, JSON.stringify(data, null, 2), "utf-8");
+  fs.writeFileSync(pathName, JSON.stringify(data, null, 2), "utf-8");
 }
 
 async function fetchRemoteTop10() {
+  const html = await fetchHomeHtml();
+  const items: { id: string; poster: string }[] = [];
+  const regex = /<div[^>]*class=["'][^"']*top10-post[^"']*["'][^>]*data-post=["'](\d+)["'][\s\S]*?<img[^>]*data-src=["']([^"']+)["'][^>]*>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = regex.exec(html))) {
+    items.push({ id: m[1], poster: m[2] });
+  }
+  return items;
+}
+
+async function fetchRemoteAllPosters() {
+  const html = await fetchHomeHtml();
+  const items: Array<{ id: string; poster: string }> = [];
+
+  // first try anchors with data-post + img inside
+  const regex = /<a[^>]*data-post=["'](\d+)["'][^>]*>[\s\S]*?<img[^>]*data-src=["'](https:\/\/imgcdn\.kim\/poster\/v\/(\d+)\.jpg)["'][^>]*>/gi;
+  let m: RegExpExecArray | null;
+  const seen = new Set<string>();
+  while ((m = regex.exec(html))) {
+    const id = m[1] || m[3];
+    const poster = m[2];
+    if (id && poster && !seen.has(id)) {
+      seen.add(id);
+      items.push({ id, poster });
+    }
+  }
+
+  // fallback: find any img with poster v/{id}.jpg
+  const imgRegex = /https:\/\/imgcdn\.kim\/poster\/v\/(\d+)\.jpg/gi;
+  while ((m = imgRegex.exec(html))) {
+    const id = m[1];
+    const poster = `https://imgcdn.kim/poster/v/${id}.jpg`;
+    if (!seen.has(id)) {
+      seen.add(id);
+      items.push({ id, poster });
+    }
+  }
+
+  return items;
+}
+
+async function fetchHomeHtml() {
   let cookieHeader: string | null = null;
   try {
     cookieHeader = await getTHash();
@@ -50,15 +93,7 @@ async function fetchRemoteTop10() {
 
   const response = await fetch("https://net51.cc/mobile/home?app=1", { method: "GET", headers });
   if (!response.ok) throw new Error("Failed to fetch remote");
-  const html = await response.text();
-
-  const items: { id: string; poster: string }[] = [];
-  const regex = /<div[^>]*class=["'][^"']*top10-post[^"']*["'][^>]*data-post=["'](\d+)["'][\s\S]*?<img[^>]*data-src=["']([^"']+)["'][^>]*>/gi;
-  let m: RegExpExecArray | null;
-  while ((m = regex.exec(html))) {
-    items.push({ id: m[1], poster: m[2] });
-  }
-  return items;
+  return await response.text();
 }
 
 export const handleGetCachedTop10: RequestHandler = (_req, res) => {
