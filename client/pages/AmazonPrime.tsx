@@ -201,7 +201,7 @@ export default function AmazonPrime() {
         });
         const jr = await genRes.json();
         if (!genRes.ok) throw new Error(jr.error || "Failed to generate movie");
-        setFetchProgress(`✓ Successfully generated: ${meta.title}`);
+        setFetchProgress(`�� Successfully generated: ${meta.title}`);
         setHistory([jr, ...history]);
         setShowHistory(true);
         setTimeout(() => {
@@ -530,90 +530,117 @@ export default function AmazonPrime() {
             )}
           </div>
 
-          {/* Featured Slider and Posters */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl text-white font-bold">Featured</h2>
-              <div className="flex items-center gap-3">
-                <span className="text-slate-400 text-sm">{postersStatus}</span>
+          {/* Progress Display or Featured Slider and Posters */}
+          {isFetching ? (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl text-white font-bold">Processing</h2>
                 <Button
-                  onClick={handleRefreshPosters}
+                  onClick={() => setShowPosters(!showPosters)}
                   className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm"
                 >
-                  {postersLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    "Refresh"
-                  )}
+                  {showPosters ? "Hide Posters" : "Show Posters"}
                 </Button>
               </div>
+              <div className="bg-slate-800/50 rounded-2xl p-8 border border-blue-500/30 flex flex-col items-center justify-center min-h-96">
+                <Loader2 className="w-16 h-16 animate-spin text-blue-400 mb-6" />
+                <p className="text-white text-lg font-semibold text-center">
+                  {fetchProgress}
+                </p>
+              </div>
             </div>
-
-            {postersLoading ? (
-              <div className="text-slate-400">Loading...</div>
-            ) : slider.length === 0 ? (
-              <div className="text-slate-400">No featured items</div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="md:col-span-2 bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center">
-                  <img
-                    src={slider[0].poster}
-                    alt="Featured poster"
-                    className="w-full max-w-none rounded-lg mb-4 object-contain max-h-[70vh]"
-                  />
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={() =>
-                        fetchMetadataAndGenerateFromAmazon(slider[0].id)
-                      }
-                      disabled={loading}
-                      className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-6"
-                    >
-                      {loading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        "Fetch & Add .strm"
-                      )}
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {slider.slice(0, 9).map((item: any) => (
-                      <div
-                        key={item.id}
-                        className="bg-slate-800/50 rounded-lg p-2 text-center"
-                      >
-                        <img
-                          src={item.poster}
-                          alt={`poster-${item.id}`}
-                          className="w-full h-56 object-contain rounded mb-2"
-                        />
-                        <div className="flex gap-2 justify-center">
-                          <Button
-                            onClick={() =>
-                              fetchMetadataAndGenerateFromAmazon(item.id)
-                            }
-                            className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
-                          >
-                            Fetch
-                          </Button>
-                          <Button
-                            onClick={() => setId(item.id)}
-                            variant="outline"
-                            className="px-4 py-1 text-sm"
-                          >
-                            Use ID
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+          ) : showPosters ? (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl text-white font-bold">Featured</h2>
+                <div className="flex items-center gap-3">
+                  <Button
+                    onClick={() => setShowPosters(!showPosters)}
+                    className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm"
+                  >
+                    {showPosters ? "Hide Posters" : "Show Posters"}
+                  </Button>
+                  <span className="text-slate-400 text-sm">{postersStatus}</span>
+                  <Button
+                    onClick={handleRefreshPosters}
+                    className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm"
+                  >
+                    {postersLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Refresh"
+                    )}
+                  </Button>
                 </div>
               </div>
-            )}
-          </div>
+
+              {postersLoading ? (
+                <div className="text-slate-400">Loading...</div>
+              ) : slider.length === 0 ? (
+                <div className="text-slate-400">No featured items</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div className="md:col-span-2 bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center">
+                    <img
+                      src={slider[0].poster}
+                      alt="Featured poster"
+                      className="w-full max-w-none rounded-lg mb-4 object-contain max-h-[70vh]"
+                    />
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={() =>
+                          fetchMetadataAndGenerateFromAmazon(slider[0].id)
+                        }
+                        disabled={loading || isFetching}
+                        className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-6"
+                      >
+                        {loading || isFetching ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          "Fetch & Add .strm"
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {slider.slice(0, 9).map((item: any) => (
+                        <div
+                          key={item.id}
+                          className="bg-slate-800/50 rounded-lg p-2 text-center"
+                        >
+                          <img
+                            src={item.poster}
+                            alt={`poster-${item.id}`}
+                            className="w-full h-56 object-contain rounded mb-2"
+                          />
+                          <div className="flex gap-2 justify-center">
+                            <Button
+                              onClick={() =>
+                                fetchMetadataAndGenerateFromAmazon(item.id)
+                              }
+                              disabled={loading || isFetching}
+                              className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
+                            >
+                              Fetch
+                            </Button>
+                            <Button
+                              onClick={() => setId(item.id)}
+                              variant="outline"
+                              className="px-4 py-1 text-sm"
+                            >
+                              Use ID
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : null}
 
           {/* All Posters (full page) */}
           <div className="mb-8">
