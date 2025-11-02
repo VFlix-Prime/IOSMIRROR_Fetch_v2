@@ -32,7 +32,11 @@ import {
   handleRefreshAllPosters,
   handleMarkAllPosters,
 } from "./routes/net51";
-import { handleUnifiedSearch } from "./routes/search";
+import {
+  handleUnifiedSearch,
+  handleNetflixSearch,
+  handlePrimeSearch,
+} from "./routes/search";
 
 export function createServer() {
   const app = express();
