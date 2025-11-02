@@ -171,7 +171,9 @@ export default function AmazonPrime() {
   };
 
   const fetchMetadataAndGenerateFromAmazon = async (serviceId: string) => {
-    setLoading(true);
+    setIsFetching(true);
+    setShowPosters(false);
+    setFetchProgress("Fetching metadata...");
     setError("");
     try {
       const resp = await fetch(
@@ -186,6 +188,7 @@ export default function AmazonPrime() {
           : null;
 
       if (meta.category === "Movie") {
+        setFetchProgress("Generating movie .strm file...");
         const genRes = await fetch("/api/generate-movie", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -198,8 +201,13 @@ export default function AmazonPrime() {
         });
         const jr = await genRes.json();
         if (!genRes.ok) throw new Error(jr.error || "Failed to generate movie");
+        setFetchProgress(`✓ Successfully generated: ${meta.title}`);
         setHistory([jr, ...history]);
         setShowHistory(true);
+        setTimeout(() => {
+          setIsFetching(false);
+          setFetchProgress("");
+        }, 2000);
         try {
           await fetch("/api/amazon-prime/posters/mark", {
             method: "POST",
@@ -210,8 +218,12 @@ export default function AmazonPrime() {
       } else if (meta.category === "Series") {
         const seasons = meta.seasons || [];
         const seasonData: any[] = [];
+        let processedSeasons = 0;
         for (const s of seasons) {
           try {
+            setFetchProgress(
+              `Fetching episodes... (${processedSeasons + 1}/${seasons.length} seasons)`,
+            );
             const r = await fetch(
               `/api/episodes?seriesId=${encodeURIComponent(serviceId)}&seasonId=${encodeURIComponent(s.id)}&service=amazon-prime`,
             );
@@ -223,11 +235,13 @@ export default function AmazonPrime() {
                 episodes: j.episodes,
               });
             }
+            processedSeasons++;
           } catch (e) {
             // skip
           }
         }
         if (seasonData.length > 0) {
+          setFetchProgress("Generating .strm files...");
           const genRes = await fetch("/api/generate-strm", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -242,8 +256,13 @@ export default function AmazonPrime() {
           const jr = await genRes.json();
           if (!genRes.ok)
             throw new Error(jr.error || "Failed to generate .strm files");
+          setFetchProgress(`✓ Successfully generated: ${meta.title}`);
           setHistory([jr, ...history]);
           setShowHistory(true);
+          setTimeout(() => {
+            setIsFetching(false);
+            setFetchProgress("");
+          }, 2000);
           try {
             await fetch("/api/amazon-prime/posters/mark", {
               method: "POST",
@@ -257,8 +276,8 @@ export default function AmazonPrime() {
       setError(
         err instanceof Error ? err.message : "Failed to generate from poster",
       );
-    } finally {
-      setLoading(false);
+      setIsFetching(false);
+      setFetchProgress("");
     }
   };
 
