@@ -151,6 +151,14 @@ export default function AmazonPrime() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const idParam = searchParams.get("id");
+    if (idParam) {
+      setId(idParam);
+      handleSearch({ preventDefault: () => {} } as React.FormEvent, idParam);
+    }
+  }, [searchParams]);
+
   const handleRefreshPosters = async () => {
     setPostersStatus("");
     setPostersLoading(true);
