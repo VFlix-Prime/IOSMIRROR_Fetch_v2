@@ -505,6 +505,56 @@ export default function Netflix() {
             )}
           </div>
 
+          {/* Top10 Posters / Latest Release */}
+          <div className="mb-8">
+            <h2 className="text-xl text-white font-bold mb-4">Latest Releases</h2>
+            {topLoading ? (
+              <div className="text-slate-400">Loading...</div>
+            ) : top10.length === 0 ? (
+              <div className="text-slate-400">No posters found</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="md:col-span-2 bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center">
+                  <img src={top10[0].poster} alt="Latest poster" className="w-full max-w-md rounded-lg mb-4" />
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => fetchMetadataAndGenerate(top10[0].id)}
+                      disabled={loading}
+                      className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-6"
+                    >
+                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Fetch & Add .strm"}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {top10.slice(0, 9).map((item) => (
+                      <div key={item.id} className="bg-slate-800/50 rounded-lg p-2 text-center">
+                        <img src={item.poster} alt={`poster-${item.id}`} className="w-full h-40 object-cover rounded mb-2" />
+                        <div className="flex gap-2 justify-center">
+                          <Button
+                            onClick={() => fetchMetadataAndGenerate(item.id)}
+                            className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
+                          >
+                            Fetch
+                          </Button>
+                          <Button
+                            onClick={() => setId(item.id)}
+                            variant="outline"
+                            className="px-4 py-1 text-sm"
+                          >
+                            Use ID
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Error Alert */}
           {error && (
             <Alert className="mb-8 bg-red-500/10 border-red-500/50">
@@ -837,7 +887,7 @@ export default function Netflix() {
                               <span>⏱️ {episode.duration}</span>
                               {episode.completed === "1" && (
                                 <span className="text-green-400">
-                                  ✓ Watched
+                                  ��� Watched
                                 </span>
                               )}
                             </div>
