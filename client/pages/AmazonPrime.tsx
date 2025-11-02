@@ -304,6 +304,7 @@ export default function AmazonPrime() {
     setLoading(true);
     setError("");
     setData(null);
+    setShowPosters(false);
 
     try {
       const response = await fetch(
