@@ -209,6 +209,9 @@ export default function Netflix() {
           if (!genRes.ok) throw new Error(jr.error || "Failed to generate .strm files");
           setHistory([jr, ...history]);
           setShowHistory(true);
+          try {
+            await fetch("/api/netflix/top10/mark", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [serviceId] }) });
+          } catch (_) {}
         }
       }
     } catch (err) {
