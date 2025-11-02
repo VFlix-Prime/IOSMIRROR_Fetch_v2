@@ -51,6 +51,46 @@ export default function AmazonPrime() {
   const [history, setHistory] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
+  // Per-service save location (Amazon Prime)
+  const [savePath, setSavePath] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch("/api/settings");
+        const json = await res.json();
+        if (json && json.settings) {
+          const s = json.settings;
+          setSavePath(s.amazonPrimeBaseFolder || s.defaultBaseFolder || "");
+        }
+      } catch (_) {
+        // ignore
+      }
+    };
+    load();
+  }, []);
+
+  const handleSavePath = async () => {
+    setSaving(true);
+    setSaveStatus("");
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amazonPrimeBaseFolder: savePath }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.error || "Failed");
+      setSaveStatus("Saved");
+    } catch (_) {
+      setSaveStatus("Failed to save");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // Cookie/token hooks (auto-fetch to improve UX)
   const {
     tHash,
