@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { handleNetflix } from "./routes/netflix";
-import { handleAmazonPrime } from "./routes/amazon-prime";
+import { handleAmazonPrime, handleGetAmazonPrimePosters, handleRefreshAmazonPrimePosters, handleMarkAmazonPrimePosters } from "./routes/amazon-prime";
 import { handleJioHotstar } from "./routes/jio-hotstar";
 import {
   handleFetchCookie,
