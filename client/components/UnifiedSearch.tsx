@@ -71,33 +71,15 @@ export default function UnifiedSearch() {
 
   const fetchContent = async (result: SearchResult) => {
     setFetchingId(`${result.provider}-${result.id}`);
-    setFetchError(null);
 
     try {
-      let apiEndpoint = "";
       if (result.provider === "netflix") {
-        apiEndpoint = `/api/netflix?id=${encodeURIComponent(result.id)}`;
+        navigate(`/netflix?id=${encodeURIComponent(result.id)}`);
       } else {
-        apiEndpoint = `/api/amazon-prime?id=${encodeURIComponent(result.id)}`;
+        navigate(`/amazon-prime?id=${encodeURIComponent(result.id)}`);
       }
-
-      const response = await fetch(apiEndpoint);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch data");
-      }
-
-      localStorage.setItem(
-        `${result.provider}_last_content`,
-        JSON.stringify({ id: result.id, title: result.title, ...data }),
-      );
-
-      setFetchError(null);
     } catch (err) {
-      setFetchError(
-        err instanceof Error ? err.message : "Failed to fetch content",
-      );
+      console.error("Navigation error:", err);
     } finally {
       setFetchingId(null);
     }
