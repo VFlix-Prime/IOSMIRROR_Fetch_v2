@@ -532,7 +532,15 @@ export default function Netflix() {
 
           {/* Top10 Posters / Latest Release */}
           <div className="mb-8">
-            <h2 className="text-xl text-white font-bold mb-4">Latest Releases</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl text-white font-bold">Latest Releases</h2>
+              <div className="flex items-center gap-3">
+                <span className="text-slate-400 text-sm">{topStatus}</span>
+                <Button onClick={handleRefreshTop10} className="bg-slate-700/30 hover:bg-slate-700/50 text-white border-0 px-3 py-1 text-sm">
+                  {topLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Refresh"}
+                </Button>
+              </div>
+            </div>
             {topLoading ? (
               <div className="text-slate-400">Loading...</div>
             ) : top10.length === 0 ? (
