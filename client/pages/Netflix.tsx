@@ -156,6 +156,14 @@ export default function Netflix() {
     load();
   }, []);
 
+  useEffect(() => {
+    const idParam = searchParams.get("id");
+    if (idParam) {
+      setId(idParam);
+      handleSearch({ preventDefault: () => {} } as React.FormEvent, idParam);
+    }
+  }, [searchParams]);
+
   const handleRefreshTop10 = async () => {
     setTopStatus("");
     setTopLoading(true);
