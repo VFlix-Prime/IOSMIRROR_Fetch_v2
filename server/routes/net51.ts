@@ -24,6 +24,16 @@ function readCache(pathName = CACHE_PATH) {
   return { items: [], lastUpdated: 0 };
 }
 
+function wrapPosterUrl(url: string | undefined): string | undefined {
+  if (!url || typeof url !== "string") return undefined;
+  if (url.includes("wsrv.nl/")) return url;
+  // If it's an imgcdn.kim url, wrap it
+  if (url.includes("imgcdn.kim/poster/")) {
+    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=500`;
+  }
+  return url;
+}
+
 function writeCache(data: any, pathName = CACHE_PATH) {
   ensureDataDir();
   fs.writeFileSync(pathName, JSON.stringify(data, null, 2), "utf-8");
@@ -36,7 +46,9 @@ async function fetchRemoteTop10() {
     /<div[^>]*class=["'][^"']*top10-post[^"']*["'][^>]*data-post=["'](\d+)["'][\s\S]*?<img[^>]*data-src=["']([^"']+)["'][^>]*>/gi;
   let m: RegExpExecArray | null;
   while ((m = regex.exec(html))) {
-    items.push({ id: m[1], poster: m[2] });
+    const id = m[1];
+    const poster = `https://wsrv.nl/?url=https://imgcdn.kim/poster/v/${encodeURIComponent(id)}.jpg&w=500`;
+    items.push({ id, poster });
   }
   return items;
 }
@@ -52,8 +64,8 @@ async function fetchRemoteAllPosters() {
   const seen = new Set<string>();
   while ((m = regex.exec(html))) {
     const id = m[1] || m[3];
-    const poster = m[2];
-    if (id && poster && !seen.has(id)) {
+    const poster = `https://wsrv.nl/?url=${encodeURIComponent(m[2])}&w=500`;
+    if (id && m[2] && !seen.has(id)) {
       seen.add(id);
       items.push({ id, poster });
     }
@@ -63,7 +75,7 @@ async function fetchRemoteAllPosters() {
   const imgRegex = /https:\/\/imgcdn\.kim\/poster\/v\/(\d+)\.jpg/gi;
   while ((m = imgRegex.exec(html))) {
     const id = m[1];
-    const poster = `https://imgcdn.kim/poster/v/${id}.jpg`;
+    const poster = `https://wsrv.nl/?url=https://imgcdn.kim/poster/v/${encodeURIComponent(id)}.jpg&w=500`;
     if (!seen.has(id)) {
       seen.add(id);
       items.push({ id, poster });
@@ -103,9 +115,13 @@ async function fetchHomeHtml() {
 
 export const handleGetCachedTop10: RequestHandler = (_req, res) => {
   const cache = readCache();
+  const items = (cache.items || []).map((it: any) => ({
+    ...it,
+    poster: wrapPosterUrl(it.poster) || it.poster,
+  }));
   res.json({
     success: true,
-    items: cache.items || [],
+    items,
     lastUpdated: cache.lastUpdated || 0,
   });
 };
@@ -159,9 +175,13 @@ export const handleMarkTop10: RequestHandler = (req, res) => {
 // --- All posters handlers ---
 export const handleGetAllPosters: RequestHandler = (_req, res) => {
   const cache = readCache(ALL_CACHE_PATH);
+  const items = (cache.items || []).map((it: any) => ({
+    ...it,
+    poster: wrapPosterUrl(it.poster) || it.poster,
+  }));
   res.json({
     success: true,
-    items: cache.items || [],
+    items,
     lastUpdated: cache.lastUpdated || 0,
   });
 };

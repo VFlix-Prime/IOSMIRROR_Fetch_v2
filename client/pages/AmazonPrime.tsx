@@ -65,6 +65,9 @@ export default function AmazonPrime() {
   const [postersLoading, setPostersLoading] = useState(false);
   const [postersStatus, setPostersStatus] = useState("");
   const [showPosters, setShowPosters] = useState(true);
+  const [newFound, setNewFound] = useState<
+    Array<{ id: string; poster: string; cate?: string; seen?: boolean }>
+  >([]);
 
   // Fetching state for progress display
   const [isFetching, setIsFetching] = useState(false);
@@ -170,6 +173,8 @@ export default function AmazonPrime() {
       if (!r.ok || !j.success) throw new Error(j.error || "Refresh failed");
       setPostersAll(j.items || []);
       setSlider(j.slider || []);
+      const unseen = (j.items || []).filter((i: any) => !i.seen).slice(0, 8);
+      setNewFound(unseen);
       setPostersStatus(j.newCount ? `${j.newCount} new` : "Up to date");
     } catch (e) {
       setPostersStatus("Refresh failed");
@@ -179,7 +184,10 @@ export default function AmazonPrime() {
     }
   };
 
-  const fetchMetadataAndGenerateFromAmazon = async (serviceId: string) => {
+  const fetchMetadataAndGenerateFromAmazon = async (
+    serviceId: string,
+    poster?: string,
+  ) => {
     setIsFetching(true);
     setShowPosters(false);
     setFetchProgress("Fetching metadata...");
@@ -604,68 +612,112 @@ export default function AmazonPrime() {
             <div className="mb-8">
               {postersLoading ? (
                 <div className="text-slate-400">Loading...</div>
-              ) : slider.length === 0 ? (
-                <div className="text-slate-400">No featured items</div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <div className="md:col-span-2 bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center">
-                    <img
-                      src={slider[0].poster}
-                      alt="Featured poster"
-                      className="w-full max-w-none rounded-lg mb-4 object-contain max-h-[70vh]"
-                    />
-                    <div className="flex gap-3">
-                      <Button
-                        onClick={() =>
-                          fetchMetadataAndGenerateFromAmazon(slider[0].id)
-                        }
-                        disabled={loading || isFetching}
-                        className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-6"
-                      >
-                        {loading || isFetching ? (
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                          "Fetch & Add .strm"
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {slider.slice(0, 9).map((item: any) => (
-                        <div
-                          key={item.id}
-                          className="bg-slate-800/50 rounded-lg p-2 text-center"
-                        >
-                          <img
-                            src={item.poster}
-                            alt={`poster-${item.id}`}
-                            className="w-full h-56 object-contain rounded mb-2"
-                          />
-                          <div className="flex gap-2 justify-center">
-                            <Button
-                              onClick={() =>
-                                fetchMetadataAndGenerateFromAmazon(item.id)
-                              }
-                              disabled={loading || isFetching}
-                              className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
-                            >
-                              Fetch
-                            </Button>
-                            <Button
-                              onClick={() => setId(item.id)}
-                              variant="outline"
-                              className="px-4 py-1 text-sm"
-                            >
-                              Use ID
-                            </Button>
+                <>
+                  {newFound.length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="text-lg text-white font-bold mb-3">
+                        New Found
+                      </h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {newFound.map((item) => (
+                          <div
+                            key={item.id}
+                            className="bg-slate-800/50 rounded-lg p-2 text-center"
+                          >
+                            <img
+                              src={item.poster}
+                              alt={`new-poster-${item.id}`}
+                              className="w-full h-48 object-contain rounded mb-2"
+                            />
+                            <div className="flex gap-2 justify-center">
+                              <Button
+                                onClick={() =>
+                                  fetchMetadataAndGenerateFromAmazon(item.id)
+                                }
+                                disabled={loading || isFetching}
+                                className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
+                              >
+                                Fetch
+                              </Button>
+                              <Button
+                                onClick={() => setId(item.id)}
+                                variant="outline"
+                                className="px-4 py-1 text-sm"
+                              >
+                                Use ID
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  )}
+
+                  {slider.length === 0 ? (
+                    <div className="text-slate-400">No featured items</div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                      <div className="md:col-span-2 bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center">
+                        <img
+                          src={slider[0].poster}
+                          alt="Featured poster"
+                          className="w-full max-w-none rounded-lg mb-4 object-contain max-h-[70vh]"
+                        />
+                        <div className="flex gap-3">
+                          <Button
+                            onClick={() =>
+                              fetchMetadataAndGenerateFromAmazon(slider[0].id)
+                            }
+                            disabled={loading || isFetching}
+                            className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-6"
+                          >
+                            {loading || isFetching ? (
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                              "Fetch & Add .strm"
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                          {slider.slice(0, 9).map((item: any) => (
+                            <div
+                              key={item.id}
+                              className="bg-slate-800/50 rounded-lg p-2 text-center"
+                            >
+                              <img
+                                src={item.poster}
+                                alt={`poster-${item.id}`}
+                                className="w-full h-56 object-contain rounded mb-2"
+                              />
+                              <div className="flex gap-2 justify-center">
+                                <Button
+                                  onClick={() =>
+                                    fetchMetadataAndGenerateFromAmazon(item.id)
+                                  }
+                                  disabled={loading || isFetching}
+                                  className="bg-gradient-to-r from-blue-600 to-blue-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
+                                >
+                                  Fetch
+                                </Button>
+                                <Button
+                                  onClick={() => setId(item.id)}
+                                  variant="outline"
+                                  className="px-4 py-1 text-sm"
+                                >
+                                  Use ID
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           ) : null}
