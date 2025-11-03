@@ -175,9 +175,13 @@ export const handleMarkTop10: RequestHandler = (req, res) => {
 // --- All posters handlers ---
 export const handleGetAllPosters: RequestHandler = (_req, res) => {
   const cache = readCache(ALL_CACHE_PATH);
+  const items = (cache.items || []).map((it: any) => ({
+    ...it,
+    poster: wrapPosterUrl(it.poster) || it.poster,
+  }));
   res.json({
     success: true,
-    items: cache.items || [],
+    items,
     lastUpdated: cache.lastUpdated || 0,
   });
 };
