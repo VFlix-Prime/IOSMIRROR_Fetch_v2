@@ -613,7 +613,9 @@ export default function AmazonPrime() {
                 <>
                   {newFound.length > 0 && (
                     <div className="mb-6">
-                      <h3 className="text-lg text-white font-bold mb-3">New Found</h3>
+                      <h3 className="text-lg text-white font-bold mb-3">
+                        New Found
+                      </h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {newFound.map((item) => (
                           <div

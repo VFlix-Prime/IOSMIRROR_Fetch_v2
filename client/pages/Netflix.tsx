@@ -717,7 +717,9 @@ export default function Netflix() {
                 <>
                   {newTop.length > 0 && (
                     <div className="mb-6">
-                      <h3 className="text-lg text-white font-bold mb-3">New Found</h3>
+                      <h3 className="text-lg text-white font-bold mb-3">
+                        New Found
+                      </h3>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {newTop.map((item) => (
                           <div
@@ -731,7 +733,9 @@ export default function Netflix() {
                             />
                             <div className="flex gap-2 justify-center">
                               <Button
-                                onClick={() => fetchMetadataAndGenerate(item.id)}
+                                onClick={() =>
+                                  fetchMetadataAndGenerate(item.id)
+                                }
                                 disabled={loading || isFetching}
                                 className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
                               >
@@ -787,7 +791,9 @@ export default function Netflix() {
                             />
                             <div className="flex gap-2 justify-center">
                               <Button
-                                onClick={() => fetchMetadataAndGenerate(item.id)}
+                                onClick={() =>
+                                  fetchMetadataAndGenerate(item.id)
+                                }
                                 disabled={loading || isFetching}
                                 className="bg-gradient-to-r from-red-600 to-red-800 hover:opacity-90 text-white border-0 px-4 py-1 text-sm"
                               >
