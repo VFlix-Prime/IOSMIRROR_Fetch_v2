@@ -68,22 +68,18 @@ export const handleTelegramNotify: RequestHandler = async (req, res) => {
 
     const json = await tgResponse.json().catch(() => ({}));
     if (!tgResponse.ok || json?.ok === false) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          error: "Failed to send Telegram message",
-          details: json,
-        });
+      return res.status(500).json({
+        success: false,
+        error: "Failed to send Telegram message",
+        details: json,
+      });
     }
 
     res.json({ success: true, result: json });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        error: "Unexpected error sending Telegram message",
-      });
+    res.status(500).json({
+      success: false,
+      error: "Unexpected error sending Telegram message",
+    });
   }
 };

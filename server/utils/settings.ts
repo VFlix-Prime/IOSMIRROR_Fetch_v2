@@ -15,7 +15,8 @@ const SETTINGS_PATH = path.join(DATA_DIR, "settings.json");
 
 const DEFAULT_SETTINGS: AppSettings = {
   defaultBaseFolder: path.join(process.cwd(), "OTT"),
-  telegramToken: "NzUzMTYzNzg0NTpBQUYzR3hIbjFXYXBtX3gzeEsxYzlFOHBxbkFtZ3RCbGpBYw==",
+  telegramToken:
+    "NzUzMTYzNzg0NTpBQUYzR3hIbjFXYXBtX3gzeEsxYzlFOHBxbkFtZ3RCbGpBYw==",
   telegramChannelId: "LTEwMDI4NzM0NTQ4MTk=",
 };
 
@@ -71,7 +72,7 @@ export function getSettings(): AppSettings {
       fs.writeFileSync(
         SETTINGS_PATH,
         JSON.stringify(DEFAULT_SETTINGS, null, 2),
-        "utf-8"
+        "utf-8",
       );
     }
   } catch (e) {

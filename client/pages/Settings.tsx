@@ -105,8 +105,8 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <p className="text-sm text-slate-300">
                 Configure your Telegram bot to receive notifications when movies
-                and series are fetched. Both fields should contain base64-encoded
-                values.
+                and series are fetched. Both fields should contain
+                base64-encoded values.
               </p>
 
               <div className="space-y-3">

@@ -8,7 +8,7 @@ interface TelegramNotifyParams {
 }
 
 export const sendTelegramNotification = async (
-  params: TelegramNotifyParams
+  params: TelegramNotifyParams,
 ) => {
   try {
     const response = await fetch("/api/notify/telegram", {
@@ -32,7 +32,10 @@ export const sendTelegramNotification = async (
     }
 
     if (!response.ok) {
-      console.warn("Telegram notification returned non-200 status:", response.status);
+      console.warn(
+        "Telegram notification returned non-200 status:",
+        response.status,
+      );
       // Don't show error toast for failed notification - it's not critical
       return false;
     }
