@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { addMovieHistory, addSeriesHistory } from "@/lib/history";
 import { useCookie } from "@/hooks/useCookie";
 import { useToken } from "@/hooks/useToken";
+import { sendTelegramNotification } from "@/lib/telegram-notify";
 
 interface Season {
   id: string;
@@ -222,6 +223,14 @@ export default function AmazonPrime() {
         setHistory([jr, ...history]);
         addMovieHistory(jr, "amazon-prime");
         setShowHistory(true);
+
+        // Send telegram notification
+        await sendTelegramNotification({
+          name: meta.title,
+          provider: "prime",
+          message: `${meta.title} - Amazon Prime movie added`,
+        });
+
         setTimeout(() => {
           setIsFetching(false);
           setShowPosters(true);
@@ -279,6 +288,14 @@ export default function AmazonPrime() {
           setHistory([jr, ...history]);
           addSeriesHistory(jr, "amazon-prime");
           setShowHistory(true);
+
+          // Send telegram notification
+          await sendTelegramNotification({
+            name: meta.title,
+            provider: "prime",
+            message: `${meta.title} - Amazon Prime series added (${seasonData.length} seasons)`,
+          });
+
           setTimeout(() => {
             setIsFetching(false);
             setShowPosters(true);
@@ -457,6 +474,13 @@ export default function AmazonPrime() {
       setHistory([result, ...history]);
       addSeriesHistory(result, "amazon-prime");
       setShowHistory(true);
+
+      // Send telegram notification
+      await sendTelegramNotification({
+        name: data?.title || "Unknown",
+        provider: "prime",
+        message: `${data?.title || "Unknown"} - Amazon Prime series generated`,
+      });
     } catch (err) {
       setError(
         err instanceof Error

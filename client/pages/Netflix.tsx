@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { addMovieHistory, addSeriesHistory } from "@/lib/history";
+import { sendTelegramNotification } from "@/lib/telegram-notify";
 
 interface Season {
   id: string;
@@ -260,6 +261,14 @@ export default function Netflix() {
         setHistory([jr, ...history]);
         addMovieHistory(jr, "netflix");
         setShowHistory(true);
+
+        // Send telegram notification
+        await sendTelegramNotification({
+          name: meta.title,
+          provider: "netflix",
+          message: `${meta.title} - Netflix movie added`,
+        });
+
         setTimeout(() => {
           setIsFetching(false);
           setShowPosters(true);
@@ -326,6 +335,14 @@ export default function Netflix() {
           setHistory([jr, ...history]);
           addSeriesHistory(jr, "netflix");
           setShowHistory(true);
+
+          // Send telegram notification
+          await sendTelegramNotification({
+            name: meta.title,
+            provider: "netflix",
+            message: `${meta.title} - Netflix series added (${seasonData.length} seasons)`,
+          });
+
           setTimeout(() => {
             setIsFetching(false);
             setShowPosters(true);
@@ -513,6 +530,13 @@ export default function Netflix() {
       setHistory([result, ...history]);
       addSeriesHistory(result, "netflix");
       setShowHistory(true);
+
+      // Send telegram notification
+      await sendTelegramNotification({
+        name: data?.title || "Unknown",
+        provider: "netflix",
+        message: `${data?.title || "Unknown"} - Netflix series generated`,
+      });
     } catch (err) {
       setError(
         err instanceof Error
@@ -556,6 +580,13 @@ export default function Netflix() {
       setHistory([result, ...history]);
       addMovieHistory(result, "netflix");
       setShowHistory(true);
+
+      // Send telegram notification
+      await sendTelegramNotification({
+        name: data.title,
+        provider: "netflix",
+        message: `${data.title} - Netflix movie generated`,
+      });
     } catch (err) {
       setError(
         err instanceof Error
@@ -1208,7 +1239,7 @@ export default function Netflix() {
                               {episode.description}
                             </p>
                             <div className="flex items-center gap-4 text-xs text-slate-500">
-                              <span>⏱️ {episode.duration}</span>
+                              <span>��️ {episode.duration}</span>
                               {episode.completed === "1" && (
                                 <span className="text-green-400">
                                   ✓ Watched

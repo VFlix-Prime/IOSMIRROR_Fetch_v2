@@ -6,6 +6,8 @@ export interface AppSettings {
   netflixBaseFolder?: string;
   amazonPrimeBaseFolder?: string;
   jioHotstarBaseFolder?: string;
+  telegramToken?: string;
+  telegramChannelId?: string;
 }
 
 const DATA_DIR = path.join(process.cwd(), "server", "data");
@@ -13,6 +15,9 @@ const SETTINGS_PATH = path.join(DATA_DIR, "settings.json");
 
 const DEFAULT_SETTINGS: AppSettings = {
   defaultBaseFolder: path.join(process.cwd(), "OTT"),
+  telegramToken:
+    "NzUzMTYzNzg0NTpBQUYzR3hIbjFXYXBtX3gzeEsxYzlFOHBxbkFtZ3RCbGpBYw==",
+  telegramChannelId: "LTEwMDI4NzM0NTQ4MTk=",
 };
 
 function ensureDataDir() {
@@ -48,9 +53,27 @@ export function getSettings(): AppSettings {
             parsed.jioHotstarBaseFolder.length > 0
               ? parsed.jioHotstarBaseFolder
               : undefined,
+          telegramToken:
+            typeof parsed.telegramToken === "string" &&
+            parsed.telegramToken.length > 0
+              ? parsed.telegramToken
+              : DEFAULT_SETTINGS.telegramToken,
+          telegramChannelId:
+            typeof parsed.telegramChannelId === "string" &&
+            parsed.telegramChannelId.length > 0
+              ? parsed.telegramChannelId
+              : DEFAULT_SETTINGS.telegramChannelId,
         };
         return base;
       }
+    } else {
+      // Settings file doesn't exist, create it with defaults
+      ensureDataDir();
+      fs.writeFileSync(
+        SETTINGS_PATH,
+        JSON.stringify(DEFAULT_SETTINGS, null, 2),
+        "utf-8",
+      );
     }
   } catch (e) {
     // ignore and fall back to default
@@ -66,6 +89,8 @@ export function setSettings(next: Partial<AppSettings>): AppSettings {
     netflixBaseFolder: current.netflixBaseFolder,
     amazonPrimeBaseFolder: current.amazonPrimeBaseFolder,
     jioHotstarBaseFolder: current.jioHotstarBaseFolder,
+    telegramToken: current.telegramToken,
+    telegramChannelId: current.telegramChannelId,
   };
 
   const setPath = (val?: string) =>
@@ -83,6 +108,12 @@ export function setSettings(next: Partial<AppSettings>): AppSettings {
   }
   if (typeof next.jioHotstarBaseFolder === "string") {
     merged.jioHotstarBaseFolder = setPath(next.jioHotstarBaseFolder);
+  }
+  if (typeof next.telegramToken === "string") {
+    merged.telegramToken = next.telegramToken.trim() || undefined;
+  }
+  if (typeof next.telegramChannelId === "string") {
+    merged.telegramChannelId = next.telegramChannelId.trim() || undefined;
   }
 
   ensureDataDir();
