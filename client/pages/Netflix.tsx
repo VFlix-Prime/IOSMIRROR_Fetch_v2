@@ -253,6 +253,7 @@ export default function Netflix() {
         if (!genRes.ok) throw new Error(jr.error || "Failed to generate movie");
         setFetchProgress(`✓ Successfully generated: ${meta.title}`);
         setHistory([jr, ...history]);
+        addMovieHistory(jr, "netflix");
         setShowHistory(true);
         setTimeout(() => {
           setIsFetching(false);
