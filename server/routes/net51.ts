@@ -36,7 +36,9 @@ async function fetchRemoteTop10() {
     /<div[^>]*class=["'][^"']*top10-post[^"']*["'][^>]*data-post=["'](\d+)["'][\s\S]*?<img[^>]*data-src=["']([^"']+)["'][^>]*>/gi;
   let m: RegExpExecArray | null;
   while ((m = regex.exec(html))) {
-    items.push({ id: m[1], poster: m[2] });
+    const id = m[1];
+    const poster = `https://wsrv.nl/?url=https://imgcdn.kim/poster/v/${encodeURIComponent(id)}.jpg&w=500`;
+    items.push({ id, poster });
   }
   return items;
 }
