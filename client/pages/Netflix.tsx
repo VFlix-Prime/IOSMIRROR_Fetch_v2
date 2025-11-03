@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { addMovieHistory, addSeriesHistory } from "@/lib/history";
+import { sendTelegramNotification } from "@/lib/telegram-notify";
 
 interface Season {
   id: string;
