@@ -16,6 +16,7 @@ import {
   Film,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { addMovieHistory, addSeriesHistory } from "@/lib/history";
 
 interface Season {
   id: string;
