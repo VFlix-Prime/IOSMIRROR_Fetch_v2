@@ -474,6 +474,13 @@ export default function AmazonPrime() {
       setHistory([result, ...history]);
       addSeriesHistory(result, "amazon-prime");
       setShowHistory(true);
+
+      // Send telegram notification
+      await sendTelegramNotification({
+        name: data?.title || "Unknown",
+        provider: "prime",
+        message: `${data?.title || "Unknown"} - Amazon Prime series generated`,
+      });
     } catch (err) {
       setError(
         err instanceof Error
