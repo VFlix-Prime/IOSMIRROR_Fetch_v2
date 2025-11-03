@@ -65,6 +65,9 @@ export default function AmazonPrime() {
   const [postersLoading, setPostersLoading] = useState(false);
   const [postersStatus, setPostersStatus] = useState("");
   const [showPosters, setShowPosters] = useState(true);
+  const [newFound, setNewFound] = useState<
+    Array<{ id: string; poster: string; cate?: string; seen?: boolean }>
+  >([]);
 
   // Fetching state for progress display
   const [isFetching, setIsFetching] = useState(false);
