@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Search, Loader2, AlertCircle, Play, Film } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { sendTelegramNotification } from "@/lib/telegram-notify";
 
 interface SearchResult {
   id: string;
@@ -73,6 +74,14 @@ export default function UnifiedSearch() {
     setFetchingId(`${result.provider}-${result.id}`);
 
     try {
+      // Send telegram notification
+      await sendTelegramNotification({
+        name: result.title,
+        provider: result.provider,
+        image: result.poster,
+        message: `${result.title} - Opening on ${result.provider === "netflix" ? "Netflix" : "Prime"}`,
+      });
+
       if (result.provider === "netflix") {
         navigate(`/netflix?id=${encodeURIComponent(result.id)}`);
       } else {

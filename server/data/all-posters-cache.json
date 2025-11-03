@@ -23,7 +23,7 @@
     {
       "id": "70178217",
       "poster": "https://imgcdn.kim/poster/v/70178217.jpg",
-      "seen": false
+      "seen": true
     },
     {
       "id": "80238738",
@@ -1391,5 +1391,5 @@
       "seen": true
     }
   ],
-  "lastUpdated": 1762160733787
+  "lastUpdated": 1762161883247
 }
