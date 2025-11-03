@@ -52,6 +52,16 @@ export function getSettings(): AppSettings {
             parsed.jioHotstarBaseFolder.length > 0
               ? parsed.jioHotstarBaseFolder
               : undefined,
+          telegramToken:
+            typeof parsed.telegramToken === "string" &&
+            parsed.telegramToken.length > 0
+              ? parsed.telegramToken
+              : DEFAULT_SETTINGS.telegramToken,
+          telegramChannelId:
+            typeof parsed.telegramChannelId === "string" &&
+            parsed.telegramChannelId.length > 0
+              ? parsed.telegramChannelId
+              : DEFAULT_SETTINGS.telegramChannelId,
         };
         return base;
       }
