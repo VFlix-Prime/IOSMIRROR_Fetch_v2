@@ -100,5 +100,8 @@ export function createServer() {
   );
   app.post("/api/amazon-prime/posters/mark", handleMarkAmazonPrimePosters);
 
+  // Notifications
+  app.post("/api/notify/telegram", handleTelegramNotify);
+
   return app;
 }
