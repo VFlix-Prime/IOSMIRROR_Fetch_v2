@@ -335,8 +335,9 @@ export default function AmazonPrime() {
     setShowPosters(false);
 
     try {
-      const proxyUrl = buildProxyUrl("prime", idToSearch);
-      const response = await fetch(proxyUrl);
+      const response = await fetch(
+        `/api/amazon-prime?id=${encodeURIComponent(idToSearch)}`,
+      );
 
       const data = await response.json();
 
