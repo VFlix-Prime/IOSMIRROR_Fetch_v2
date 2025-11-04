@@ -13,7 +13,8 @@ export const handleProxy: RequestHandler = async (req, res) => {
     if (!service || !id) {
       return res.status(400).json({
         success: false,
-        error: "Missing service or id parameter. Usage: /api/proxy?service=netflix&id=70270776",
+        error:
+          "Missing service or id parameter. Usage: /api/proxy?service=netflix&id=70270776",
       });
     }
 
