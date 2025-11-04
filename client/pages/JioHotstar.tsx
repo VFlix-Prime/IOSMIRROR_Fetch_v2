@@ -16,7 +16,6 @@ import { addMovieHistory, addSeriesHistory } from "@/lib/history";
 import { useCookie } from "@/hooks/useCookie";
 import { useToken } from "@/hooks/useToken";
 import { useEffect, useState } from "react";
-import { buildProxyUrl } from "@/lib/proxy";
 
 interface Season {
   id: string;
