@@ -194,8 +194,9 @@ export default function AmazonPrime() {
     setFetchProgress("Fetching metadata...");
     setError("");
     try {
-      const proxyUrl = buildProxyUrl("prime", serviceId);
-      const resp = await fetch(proxyUrl);
+      const resp = await fetch(
+        `/api/amazon-prime?id=${encodeURIComponent(serviceId)}`,
+      );
       const meta = await resp.json();
       if (!resp.ok) throw new Error(meta.error || "Failed to fetch metadata");
 
