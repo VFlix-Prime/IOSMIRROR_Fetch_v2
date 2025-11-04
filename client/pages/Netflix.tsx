@@ -391,9 +391,8 @@ export default function Netflix() {
     setShowPosters(false);
 
     try {
-      const response = await fetch(
-        `/api/netflix?id=${encodeURIComponent(idToSearch)}`,
-      );
+      const proxyUrl = buildProxyUrl("netflix", idToSearch);
+      const response = await fetch(proxyUrl);
 
       const data = await response.json();
 
